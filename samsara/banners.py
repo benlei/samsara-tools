@@ -82,26 +82,50 @@ def parse_banners_from_version(
     def is_weapon_banner() -> bool:
         return find_inverted(doc, 'Epitome Invocation', start_pos) < banner_end_pos()
 
+    def is_row_empty() -> bool:
+        return doc.find("card_5", start_pos, banner_end_pos()) == -1
+
+    def get_banner_date_range() -> str:
+        date_range_start_pos = doc.find('data-sort-value="', start_pos) + len('data-sort-value="')
+        date_range_end_pos = doc.find('"', date_range_start_pos)
+        return doc[date_range_start_pos:date_range_end_pos]
+
+    last_character_date_range = None
+    last_weapon_date_range = None
+    character_banner_count = 0
+    weapon_banner_count = 0
     while start_pos < end_pos:
         # it's the end!
         if is_finished_parsing_version():
             break
 
+        if is_row_empty():
+            start_pos = banner_end_pos() + 1
+            continue
+
         # start going through the cards (char/weap)!
         if is_weapon_banner():
+            if get_banner_date_range() != last_weapon_date_range:
+                weapon_banner_count += 1
+                last_weapon_date_range = get_banner_date_range()
+
             parse_banner(
                 doc=doc,
                 start_pos=start_pos,
                 end_pos=banner_end_pos(),
-                version=version,
+                version=f"{version}.{weapon_banner_count}",
                 store=weapons,
             )
         else:
+            if get_banner_date_range() != last_character_date_range:
+                character_banner_count += 1
+                last_character_date_range = get_banner_date_range()
+
             parse_banner(
                 doc=doc,
                 start_pos=start_pos,
                 end_pos=banner_end_pos(),
-                version=version,
+                version=f"{version}.{character_banner_count}",
                 store=characters,
             )
 
