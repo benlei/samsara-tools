@@ -9,35 +9,35 @@ from samsara import fandom, banners
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage="%(prog)s [OPTION]",
-        description="Pulls the banner data from Fandom page and outputs images and JSON data to specific locations. By default, it will pull only missing images."
+        description="Pulls the banner data from Fandom page and outputs images and JSON data to specific locations. By default, it will pull only missing images.",
     )
 
     parser.add_argument(
-        '--output-json',
-        action='store',
+        "--output-json",
+        action="store",
         required=True,
-        help='The location to output the JSON data to',
+        help="The location to output the JSON data to",
     )
 
     parser.add_argument(
-        '--output-image-dir',
-        action='store',
+        "--output-image-dir",
+        action="store",
         required=True,
-        help='The directory to output the image to',
+        help="The directory to output the image to",
     )
 
     parser.add_argument(
-        '--force',
-        action='store_true',
-        help='Force replaces all images with newer ones',
+        "--force",
+        action="store_true",
+        help="Force replaces all images with newer ones",
     )
 
     parser.add_argument(
-        '--min-data-size',
-        action='store',
+        "--min-data-size",
+        action="store",
         type=int,
         default=5000,
-        help='Minimum data size to expect (15k bytes by default), and if it falls below that then do nothing.',
+        help="Minimum data size to expect (15k bytes by default), and if it falls below that then do nothing.",
     )
 
     return parser
@@ -57,7 +57,12 @@ def write_images(args, data):
     image_path = pathlib.Path(args.output_image_dir)
     for stars in data["weapons"].values():
         for weaponName, weapon in stars.items():
-            if args.force or not image_path.joinpath(f"Weapon-{banners.filename(weaponName)}.png").exists():
+            if (
+                args.force
+                or not image_path.joinpath(
+                    f"Weapon-{banners.filename(weaponName)}.png"
+                ).exists()
+            ):
                 request.urlretrieve(
                     weapon["image"],
                     image_path.joinpath(f"Weapon-{banners.filename(weaponName)}.png"),
@@ -65,10 +70,17 @@ def write_images(args, data):
 
     for stars in data["characters"].values():
         for characterName, character in stars.items():
-            if args.force or not image_path.joinpath(f"Character-{banners.filename(characterName)}.png").exists():
+            if (
+                args.force
+                or not image_path.joinpath(
+                    f"Character-{banners.filename(characterName)}.png"
+                ).exists()
+            ):
                 request.urlretrieve(
                     character["image"],
-                    image_path.joinpath(f"Character-{banners.filename(characterName)}.png"),
+                    image_path.joinpath(
+                        f"Character-{banners.filename(characterName)}.png"
+                    ),
                 )
 
 
@@ -81,5 +93,5 @@ def write_json_data(args, data):
         f.write(minified)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

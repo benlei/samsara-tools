@@ -14,7 +14,7 @@ def find_inverted(s: str, substr: str, start: Optional[int]) -> int:
     """
     pos = s.find(substr, start)
     if pos == -1:
-        return 2 ** 32
+        return 2**32
     return pos
 
 
@@ -26,14 +26,14 @@ def load_banners(doc: str) -> dict:
     """
 
     def get_version(start: int) -> Optional[str]:
-        version_pos = doc.find('>Version', start)
+        version_pos = doc.find(">Version", start)
 
         # it's the end
         if version_pos == -1:
             return None
 
-        end_version_pos = doc.find('<', version_pos)
-        return doc[version_pos:end_version_pos].split(' ')[1]
+        end_version_pos = doc.find("<", version_pos)
+        return doc[version_pos:end_version_pos].split(" ")[1]
 
     characters = {
         "5": defaultdict(lambda: dict(versions=[])),
@@ -50,8 +50,8 @@ def load_banners(doc: str) -> dict:
         if (version := get_version(i)) is None:
             break
 
-        i = doc.find('<table', i)
-        end_table_pos = doc.find('</table', i)
+        i = doc.find("<table", i)
+        end_table_pos = doc.find("</table", i)
 
         parse_banners_from_version(
             doc=doc,
@@ -67,27 +67,29 @@ def load_banners(doc: str) -> dict:
 
 
 def parse_banners_from_version(
-        doc: str,
-        start_pos: int,
-        end_pos: int,
-        version: str,
-        characters: dict,
-        weapons: dict,
+    doc: str,
+    start_pos: int,
+    end_pos: int,
+    version: str,
+    characters: dict,
+    weapons: dict,
 ):
     def banner_end_pos() -> int:
-        return find_inverted(doc, '</tr', start_pos)
+        return find_inverted(doc, "</tr", start_pos)
 
     def is_finished_parsing_version() -> bool:
         return banner_end_pos() > end_pos
 
     def is_weapon_banner() -> bool:
-        return find_inverted(doc, 'Epitome Invocation', start_pos) < banner_end_pos()
+        return find_inverted(doc, "Epitome Invocation", start_pos) < banner_end_pos()
 
     def is_row_empty() -> bool:
         return doc.find("card_5", start_pos, banner_end_pos()) == -1
 
     def get_banner_date_range() -> str:
-        date_range_start_pos = doc.find('data-sort-value="', start_pos) + len('data-sort-value="')
+        date_range_start_pos = doc.find('data-sort-value="', start_pos) + len(
+            'data-sort-value="'
+        )
         date_range_end_pos = doc.find('"', date_range_start_pos)
         return doc[date_range_start_pos:date_range_end_pos]
 
@@ -134,11 +136,11 @@ def parse_banners_from_version(
 
 
 def parse_banner(
-        doc: str,
-        start_pos: int,
-        end_pos: int,
-        version: str,
-        store: dict,
+    doc: str,
+    start_pos: int,
+    end_pos: int,
+    version: str,
+    store: dict,
 ):
     def is_finished_parsing_banner(five_star_pos: int, four_star_pos: int) -> bool:
         return min(five_star_pos, four_star_pos) > end_pos
@@ -155,20 +157,20 @@ def parse_banner(
         return "4"
 
     def get_img_url() -> str:
-        img_pos_start = doc.find('https://static.wikia', start_pos)
+        img_pos_start = doc.find("https://static.wikia", start_pos)
         img_pos_end = doc.find('"', img_pos_start)
         img_url = doc[img_pos_start:img_pos_end]
         return img_url
 
     def get_name() -> str:
-        title_pos_start = doc.find('title=', start_pos) + len('title="')
+        title_pos_start = doc.find("title=", start_pos) + len('title="')
         title_pos_end = doc.find('"', title_pos_start)
         title = html.unescape(doc[title_pos_start:title_pos_end])
         return title
 
     while start_pos < end_pos:
-        five_star_pos = find_inverted(doc, 'card_5', start_pos)
-        four_star_pos = find_inverted(doc, 'card_4', start_pos)
+        five_star_pos = find_inverted(doc, "card_5", start_pos)
+        four_star_pos = find_inverted(doc, "card_4", start_pos)
 
         # there are no more char/weaps
         if is_finished_parsing_banner(five_star_pos, four_star_pos):
@@ -189,16 +191,16 @@ def trim_doc(doc: str) -> str:
     :param doc: the doc string
     :return: a trimmed version of the doc
     """
-    start = doc.rindex('Wishes by Version')
-    end = doc.rindex('Wishes by Type')
+    start = doc.rindex("Wishes by Version")
+    end = doc.rindex("Wishes by Type")
     doc = doc[start:end]
     return doc
 
 
 def filename(name: str) -> str:
-    result = name.replace(' ', '-')
-    result = re.sub(r'[^a-zA-Z0-9\-]', '', result)
-    return re.sub(r'--+', '-', result)
+    result = name.replace(" ", "-")
+    result = re.sub(r"[^a-zA-Z0-9\-]", "", result)
+    return re.sub(r"--+", "-", result)
 
 
 def minify(data: dict) -> dict:
