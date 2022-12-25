@@ -55,33 +55,19 @@ def main() -> None:
 
 def write_images(args, data):
     image_path = pathlib.Path(args.output_image_dir)
-    for stars in data["weapons"].values():
-        for weaponName, weapon in stars.items():
-            if (
-                args.force
-                or not image_path.joinpath(
-                    f"Weapon-{banners.filename(weaponName)}.png"
-                ).exists()
-            ):
-                request.urlretrieve(
-                    weapon["image"],
-                    image_path.joinpath(f"Weapon-{banners.filename(weaponName)}.png"),
+    for type, stars in data.items():
+        for star, resources in stars.items():
+            for resourceName, resource in resources.items():
+                path = image_path.joinpath(
+                    type,
+                    f"{banners.filename(resourceName)}.png",
                 )
-
-    for stars in data["characters"].values():
-        for characterName, character in stars.items():
-            if (
-                args.force
-                or not image_path.joinpath(
-                    f"Character-{banners.filename(characterName)}.png"
-                ).exists()
-            ):
-                request.urlretrieve(
-                    character["image"],
-                    image_path.joinpath(
-                        f"Character-{banners.filename(characterName)}.png"
-                    ),
-                )
+                if args.force or not path.exists():
+                    request.urlretrieve(
+                        resource["image"],
+                        path,
+                    )
+                    print(f"Saved {path}")
 
 
 def write_json_data(args, data):
