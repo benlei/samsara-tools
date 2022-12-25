@@ -1,4 +1,5 @@
 import html
+import re
 from collections import defaultdict
 from typing import Optional
 
@@ -192,3 +193,18 @@ def trim_doc(doc: str) -> str:
     end = doc.rindex('Wishes by Type')
     doc = doc[start:end]
     return doc
+
+
+def filename(name: str) -> str:
+    result = name.replace(' ', '-')
+    result = re.sub(r'[^a-zA-Z0-9\-]', '', result)
+    return re.sub(r'--+', '-', result)
+
+
+def minify(data: dict) -> dict:
+    result = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+    for resourceType, stars in data.items():
+        for star, resources in stars.items():
+            for resourceName, resource in resources.items():
+                result[resourceType][star][resourceName] = resource["versions"]
+    return result

@@ -1,7 +1,5 @@
-from urllib.request import urlopen
+import requests as requests
 
 
 def get_raw_wish_history() -> str:
-    with urlopen("https://genshin-impact.fandom.com/wiki/Wish/History") as f:
-        return f.read()
-
+    return requests.get("https://genshin-impact.fandom.com/wiki/Wish/History").text
