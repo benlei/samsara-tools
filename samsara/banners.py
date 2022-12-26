@@ -146,7 +146,8 @@ def parse_banner(
         return min(five_star_pos, four_star_pos) > end_pos
 
     def add_version(stars: str, name: str, img_url: str):
-        store[stars][name]["versions"].append(version)
+        if version not in store[stars][name]["versions"]:
+            store[stars][name]["versions"].append(version)
 
         if "image" not in store[stars][name]:
             store[stars][name]["image"] = img_url
