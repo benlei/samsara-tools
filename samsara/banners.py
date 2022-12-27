@@ -3,6 +3,8 @@ import re
 from collections import defaultdict
 from typing import Optional
 
+from samsara.fandom import rescale_image_url
+
 
 def find_inverted(s: str, substr: str, start: Optional[int]) -> int:
     """
@@ -14,7 +16,7 @@ def find_inverted(s: str, substr: str, start: Optional[int]) -> int:
     """
     pos = s.find(substr, start)
     if pos == -1:
-        return 2**32
+        return 2 ** 32
     return pos
 
 
@@ -67,12 +69,12 @@ def load_banners(doc: str) -> dict:
 
 
 def parse_banners_from_version(
-    doc: str,
-    start_pos: int,
-    end_pos: int,
-    version: str,
-    characters: dict,
-    weapons: dict,
+        doc: str,
+        start_pos: int,
+        end_pos: int,
+        version: str,
+        characters: dict,
+        weapons: dict,
 ):
     def banner_end_pos() -> int:
         return find_inverted(doc, "</tr", start_pos)
@@ -136,11 +138,11 @@ def parse_banners_from_version(
 
 
 def parse_banner(
-    doc: str,
-    start_pos: int,
-    end_pos: int,
-    version: str,
-    store: dict,
+        doc: str,
+        start_pos: int,
+        end_pos: int,
+        version: str,
+        store: dict,
 ):
     def is_finished_parsing_banner(five_star_pos: int, four_star_pos: int) -> bool:
         return min(five_star_pos, four_star_pos) > end_pos
@@ -150,7 +152,7 @@ def parse_banner(
             store[stars][name]["versions"].append(version)
 
         if "image" not in store[stars][name]:
-            store[stars][name]["image"] = img_url
+            store[stars][name]["image"] = rescale_image_url(img_url, 100)
 
     def get_stars(five_star_pos, four_star_pos) -> str:
         if five_star_pos < four_star_pos:
