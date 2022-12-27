@@ -54,9 +54,7 @@ def load_banners(doc: str) -> dict:
         end_pos = doc.find("</table", start_pos)
 
         parse_banners_from_version(
-            doc=doc,
-            start_pos=start_pos,
-            end_pos=end_pos,
+            doc=doc[start_pos:end_pos+len('</table>')],
             version=version,
             characters=characters,
             weapons=weapons,
@@ -68,26 +66,24 @@ def load_banners(doc: str) -> dict:
 
 def parse_banners_from_version(
         doc: str,
-        start_pos: int,
-        end_pos: int,
         version: str,
         characters: dict,
         weapons: dict,
 ):
-    def banner_end_pos() -> int:
-        return findi(doc, "</tr", start_pos)
+    def banner_end_pos(start: int) -> int:
+        return findi(doc, "</tr", start)
 
-    def is_finished_parsing_version() -> bool:
-        return banner_end_pos() > end_pos
+    def is_finished_parsing_version(start: int) -> bool:
+        return banner_end_pos(start) > len(doc)
 
-    def is_weapon_banner() -> bool:
-        return findi(doc, "Epitome Invocation", start_pos) < banner_end_pos()
+    def is_weapon_banner(start: int) -> bool:
+        return findi(doc, "Epitome Invocation", start) < banner_end_pos(start)
 
-    def is_row_empty() -> bool:
-        return doc.find("card_5", start_pos, banner_end_pos()) == -1
+    def is_row_empty(start: int) -> bool:
+        return doc.find("card_5", start, banner_end_pos(start)) == -1
 
-    def get_banner_date_range() -> str:
-        date_range_start_pos = doc.find('data-sort-value="', start_pos) + len(
+    def get_banner_date_range(start: int) -> str:
+        date_range_start_pos = doc.find('data-sort-value="', start) + len(
             'data-sort-value="'
         )
         date_range_end_pos = doc.find('"', date_range_start_pos)
@@ -97,41 +93,42 @@ def parse_banners_from_version(
     last_weapon_date_range = None
     character_banner_count = 0
     weapon_banner_count = 0
-    while start_pos < end_pos:
-        if is_finished_parsing_version():
+    start_pos = 0
+    while start_pos < len(doc):
+        if is_finished_parsing_version(start_pos):
             break
 
-        if is_row_empty():
-            start_pos = banner_end_pos() + 1
+        if is_row_empty(start_pos):
+            start_pos = banner_end_pos(start_pos) + 1
             continue
 
         # start going through the cards (char/weap)!
-        if is_weapon_banner():
-            if get_banner_date_range() != last_weapon_date_range:
+        if is_weapon_banner(start_pos):
+            if get_banner_date_range(start_pos) != last_weapon_date_range:
                 weapon_banner_count += 1
-                last_weapon_date_range = get_banner_date_range()
+                last_weapon_date_range = get_banner_date_range(start_pos)
 
             parse_banner(
                 doc=doc,
                 start_pos=start_pos,
-                end_pos=banner_end_pos(),
+                end_pos=banner_end_pos(start_pos),
                 version=f"{version}.{weapon_banner_count}",
                 store=weapons,
             )
         else:
-            if get_banner_date_range() != last_character_date_range:
+            if get_banner_date_range(start_pos) != last_character_date_range:
                 character_banner_count += 1
-                last_character_date_range = get_banner_date_range()
+                last_character_date_range = get_banner_date_range(start_pos)
 
             parse_banner(
                 doc=doc,
                 start_pos=start_pos,
-                end_pos=banner_end_pos(),
+                end_pos=banner_end_pos(start_pos),
                 version=f"{version}.{character_banner_count}",
                 store=characters,
             )
 
-        start_pos = banner_end_pos() + 1
+        start_pos = banner_end_pos(start_pos) + 1
 
 
 def parse_banner(
