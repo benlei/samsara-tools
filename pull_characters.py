@@ -3,15 +3,14 @@ import json
 import pathlib
 from urllib import request
 
-import samsara.fandom
-from samsara import fandom, banners
+from samsara import fandom, characters
 
 
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage="%(prog)s [OPTION]",
-        description="Pulls the banner data from Fandom page and outputs images and JSON data to specific locations. "
-        "By default, it will pull only missing images.",
+        description="Pulls the character data from Fandom page and outputs images and JSON data to specific "
+        "locations. By default, it will pull only missing images.",
     )
 
     parser.add_argument(
@@ -38,8 +37,8 @@ def get_parser() -> argparse.ArgumentParser:
         "--min-data-size",
         action="store",
         type=int,
-        default=5000,
-        help="Minimum data size to expect (5k bytes by default), and if it falls below that then do nothing.",
+        default=500,
+        help="Minimum data size to expect (15k bytes by default), and if it falls below that then do nothing.",
     )
 
     return parser
@@ -48,7 +47,9 @@ def get_parser() -> argparse.ArgumentParser:
 def main() -> None:
     args: argparse.Namespace = get_parser().parse_args()
 
-    data = banners.load_banners(banners.trim_doc(fandom.get_raw_wish_history()))
+    data = characters.load_characters(
+        characters.trim_doc(fandom.get_raw_character_list())
+    )
 
     write_images(args, data)
 
@@ -57,23 +58,21 @@ def main() -> None:
 
 def write_images(args, data):
     image_path = pathlib.Path(args.output_image_dir)
-    for type, stars in data.items():
-        for star, resources in stars.items():
-            for resourceName, resource in resources.items():
-                path = image_path.joinpath(
-                    type,
-                    f"{samsara.fandom.filenameify(resourceName)}.png",
-                )
-                if args.force or not path.exists():
-                    request.urlretrieve(
-                        resource["image"],
-                        path,
-                    )
-                    print(f"Saved {path}")
+    for character_name, img_url in data.items():
+        path = image_path.joinpath(
+            "characters",
+            f"{fandom.filenameify(character_name)}.png",
+        )
+        if args.force or not path.exists():
+            request.urlretrieve(
+                img_url,
+                path,
+            )
+            print(f"Saved {path}")
 
 
 def write_json_data(args, data):
-    minified = json.dumps(banners.minify(data))
+    minified = json.dumps(characters.minify(data))
     if len(minified) < args.min_data_size:
         raise f"Character data was under {args.min_data_size} (was {len(minified)} -- aborting!"
 
