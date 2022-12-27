@@ -2,7 +2,6 @@ import html
 from collections import defaultdict
 from typing import Optional
 
-from samsara import find
 from samsara.fandom import rescale_image_url
 from samsara.find import findi
 
@@ -51,7 +50,8 @@ def load_banners(doc: str) -> dict:
         if (version := get_version(i)) is None:
             break
 
-        [i, end_table_pos] = find.table_range(doc, i)
+        i = doc.find("<table", i)
+        end_table_pos = doc.find("</table", i)
 
         parse_banners_from_version(
             doc=doc,
@@ -98,7 +98,6 @@ def parse_banners_from_version(
     character_banner_count = 0
     weapon_banner_count = 0
     while start_pos < end_pos:
-        # it's the end!
         if is_finished_parsing_version():
             break
 
