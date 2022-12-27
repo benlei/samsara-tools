@@ -45,24 +45,24 @@ def load_banners(doc: str) -> dict:
         "4": defaultdict(lambda: dict(versions=[])),
     }
 
-    i = 0
-    while i < len(doc):
-        if (version := get_version(i)) is None:
+    start_pos = 0
+    while start_pos < len(doc):
+        if (version := get_version(start_pos)) is None:
             break
 
-        i = doc.find("<table", i)
-        end_table_pos = doc.find("</table", i)
+        start_pos = doc.find("<table", start_pos)
+        end_pos = doc.find("</table", start_pos)
 
         parse_banners_from_version(
             doc=doc,
-            start_pos=i,
-            end_pos=end_table_pos,
+            start_pos=start_pos,
+            end_pos=end_pos,
             version=version,
             characters=characters,
             weapons=weapons,
         )
 
-        i = end_table_pos
+        start_pos = end_pos
     return dict(characters=characters, weapons=weapons)
 
 
