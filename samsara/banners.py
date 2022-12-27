@@ -1,9 +1,9 @@
 import html
-import re
 from collections import defaultdict
 from typing import Optional
 
 from samsara.fandom import rescale_image_url
+from samsara.search import findi
 
 
 def trim_doc(doc: str) -> str:
@@ -67,21 +67,21 @@ def load_banners(doc: str) -> dict:
 
 
 def parse_banners_from_version(
-        doc: str,
-        start_pos: int,
-        end_pos: int,
-        version: str,
-        characters: dict,
-        weapons: dict,
+    doc: str,
+    start_pos: int,
+    end_pos: int,
+    version: str,
+    characters: dict,
+    weapons: dict,
 ):
     def banner_end_pos() -> int:
-        return str_find_inverted(doc, "</tr", start_pos)
+        return findi(doc, "</tr", start_pos)
 
     def is_finished_parsing_version() -> bool:
         return banner_end_pos() > end_pos
 
     def is_weapon_banner() -> bool:
-        return str_find_inverted(doc, "Epitome Invocation", start_pos) < banner_end_pos()
+        return findi(doc, "Epitome Invocation", start_pos) < banner_end_pos()
 
     def is_row_empty() -> bool:
         return doc.find("card_5", start_pos, banner_end_pos()) == -1
@@ -136,11 +136,11 @@ def parse_banners_from_version(
 
 
 def parse_banner(
-        doc: str,
-        start_pos: int,
-        end_pos: int,
-        version: str,
-        store: dict,
+    doc: str,
+    start_pos: int,
+    end_pos: int,
+    version: str,
+    store: dict,
 ):
     def is_finished_parsing_banner(five_star_pos: int, four_star_pos: int) -> bool:
         return min(five_star_pos, four_star_pos) > end_pos
@@ -170,8 +170,8 @@ def parse_banner(
         return title
 
     while start_pos < end_pos:
-        five_star_pos = str_find_inverted(doc, "card_5", start_pos)
-        four_star_pos = str_find_inverted(doc, "card_4", start_pos)
+        five_star_pos = findi(doc, "card_5", start_pos)
+        four_star_pos = findi(doc, "card_4", start_pos)
 
         # there are no more char/weaps
         if is_finished_parsing_banner(five_star_pos, four_star_pos):
@@ -186,12 +186,6 @@ def parse_banner(
         )
 
 
-def filename(name: str) -> str:
-    result = name.replace(" ", "-")
-    result = re.sub(r"[^a-zA-Z0-9\-]", "", result)
-    return re.sub(r"--+", "-", result)
-
-
 def minify(data: dict) -> dict:
     result = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
     for resourceType, stars in data.items():
@@ -199,17 +193,3 @@ def minify(data: dict) -> dict:
             for resourceName, resource in resources.items():
                 result[resourceType][star][resourceName] = resource["versions"]
     return result
-
-
-def str_find_inverted(s: str, substr: str, start: Optional[int]) -> int:
-    """
-    Tries to find the substr in the str, otherwise returns a big number
-    :param s: the string
-    :param substr: the substring to find
-    :param start: the start position of the string
-    :return: the position of the substr in s, or a really large number if it can't be found
-    """
-    pos = s.find(substr, start)
-    if pos == -1:
-        return 2 ** 32
-    return pos

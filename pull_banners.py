@@ -3,6 +3,7 @@ import json
 import pathlib
 from urllib import request
 
+import samsara.fandom
 from samsara import fandom, banners
 
 
@@ -60,7 +61,7 @@ def write_images(args, data):
             for resourceName, resource in resources.items():
                 path = image_path.joinpath(
                     type,
-                    f"{banners.filename(resourceName)}.png",
+                    f"{samsara.fandom.filenameify(resourceName)}.png",
                 )
                 if args.force or not path.exists():
                     request.urlretrieve(

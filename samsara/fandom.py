@@ -1,3 +1,5 @@
+import re
+
 import requests as requests
 
 
@@ -10,6 +12,12 @@ def get_raw_character_list() -> str:
 
 
 def rescale_image_url(scaled_url: str, new_size: int) -> str:
-    question_index = scaled_url.rfind('?')
-    slash_index = scaled_url.rfind('/')
+    question_index = scaled_url.rfind("?")
+    slash_index = scaled_url.rfind("/")
     return f"{scaled_url[0:slash_index]}/{new_size}{scaled_url[question_index:]}"
+
+
+def filenameify(name: str) -> str:
+    result = name.replace(" ", "-")
+    result = re.sub(r"[^a-zA-Z0-9\-]", "", result)
+    return re.sub(r"--+", "-", result)
