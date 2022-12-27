@@ -3,7 +3,7 @@ import json
 import pathlib
 from urllib import request
 
-from samsara import fandom, banners, characters
+from samsara import fandom, characters
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -47,7 +47,9 @@ def get_parser() -> argparse.ArgumentParser:
 def main() -> None:
     args: argparse.Namespace = get_parser().parse_args()
 
-    data = characters.load_characters(banners.trim_doc(fandom.get_raw_character_list()))
+    data = characters.load_characters(
+        characters.trim_doc(fandom.get_raw_character_list())
+    )
 
     write_images(args, data)
 
