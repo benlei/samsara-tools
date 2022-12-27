@@ -1,7 +1,6 @@
 import json
 import pathlib
 
-import samsara.fandom
 from samsara import banners
 
 
@@ -33,11 +32,3 @@ def test_minify():
         pathlib.Path(__file__).parent.joinpath("expected_minify_banner_data.json"), "r"
     ) as f:
         assert json.load(f) == banners.minify(banners.load_banners(doc))
-
-
-def test_filename():
-    assert "Kamisato-Ayato" == samsara.fandom.filenameify("Kamisato Ayato")
-    assert "Kamisato-Ayato" == samsara.fandom.filenameify("Kamisato-------Ayato")
-    assert "Kamisato-Ayato" == samsara.fandom.filenameify("Kamisato  Ayato")
-    assert "Kamisato-Ayato" == samsara.fandom.filenameify("Kamisato Aya'to")
-    assert "Kamisato01236Ayato" == samsara.fandom.filenameify("Kamisato01236Aya'to")

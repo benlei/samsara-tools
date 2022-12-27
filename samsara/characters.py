@@ -1,5 +1,7 @@
 import html
 
+from samsara import fandom
+
 
 def trim_doc(doc: str) -> str:
     start = doc.rfind(">Playable Characters<")
@@ -35,6 +37,10 @@ def parse_character_data(doc: str) -> dict:
     character_name = html.unescape(doc[title_pos : doc.find('"', title_pos)])
 
     image_pos = doc.find("https://static.wikia")
-    img_url = doc[image_pos : doc.find('"', image_pos)]
+    img_url = fandom.rescale_image_url(doc[image_pos : doc.find('"', image_pos)], 100)
 
     return {character_name: img_url}
+
+
+def minify(data: dict):
+    return sorted(data.keys())
