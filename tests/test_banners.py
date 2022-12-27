@@ -27,7 +27,7 @@ def test_minify():
 
     # with open(pathlib.Path(__file__).parent.joinpath("expected_minify_banner_data.json"), "w") as f:
     #     json.dump(banners.minify(banners.load_banners(doc)), f)
-    #
+
 
     with open(
         pathlib.Path(__file__).parent.joinpath("expected_minify_banner_data.json"), "r"

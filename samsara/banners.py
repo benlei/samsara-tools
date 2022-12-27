@@ -6,18 +6,16 @@ from typing import Optional
 from samsara.fandom import rescale_image_url
 
 
-def find_inverted(s: str, substr: str, start: Optional[int]) -> int:
+def trim_doc(doc: str) -> str:
     """
-    Tries to find the substr in the str, otherwise returns a big number
-    :param s: the string
-    :param substr: the substring to find
-    :param start: the start position of the string
-    :return: the position of the substr in s, or a really large number if it can't be found
+    Removes unnecessary information from the doc so that it can focus solely on banner information
+    :param doc: the doc string
+    :return: a trimmed version of the doc
     """
-    pos = s.find(substr, start)
-    if pos == -1:
-        return 2 ** 32
-    return pos
+    start = doc.rindex(">Wishes by Version<")
+    end = doc.rindex(">Wishes by Type<")
+    doc = doc[start:end]
+    return doc
 
 
 def load_banners(doc: str) -> dict:
@@ -77,13 +75,13 @@ def parse_banners_from_version(
         weapons: dict,
 ):
     def banner_end_pos() -> int:
-        return find_inverted(doc, "</tr", start_pos)
+        return str_find_inverted(doc, "</tr", start_pos)
 
     def is_finished_parsing_version() -> bool:
         return banner_end_pos() > end_pos
 
     def is_weapon_banner() -> bool:
-        return find_inverted(doc, "Epitome Invocation", start_pos) < banner_end_pos()
+        return str_find_inverted(doc, "Epitome Invocation", start_pos) < banner_end_pos()
 
     def is_row_empty() -> bool:
         return doc.find("card_5", start_pos, banner_end_pos()) == -1
@@ -172,8 +170,8 @@ def parse_banner(
         return title
 
     while start_pos < end_pos:
-        five_star_pos = find_inverted(doc, "card_5", start_pos)
-        four_star_pos = find_inverted(doc, "card_4", start_pos)
+        five_star_pos = str_find_inverted(doc, "card_5", start_pos)
+        four_star_pos = str_find_inverted(doc, "card_4", start_pos)
 
         # there are no more char/weaps
         if is_finished_parsing_banner(five_star_pos, four_star_pos):
@@ -186,18 +184,6 @@ def parse_banner(
             name=get_name(),
             img_url=get_img_url(),
         )
-
-
-def trim_doc(doc: str) -> str:
-    """
-    Removes unnecessary information from the doc so that it can focus solely on banner information
-    :param doc: the doc string
-    :return: a trimmed version of the doc
-    """
-    start = doc.rindex("Wishes by Version")
-    end = doc.rindex("Wishes by Type")
-    doc = doc[start:end]
-    return doc
 
 
 def filename(name: str) -> str:
@@ -213,3 +199,17 @@ def minify(data: dict) -> dict:
             for resourceName, resource in resources.items():
                 result[resourceType][star][resourceName] = resource["versions"]
     return result
+
+
+def str_find_inverted(s: str, substr: str, start: Optional[int]) -> int:
+    """
+    Tries to find the substr in the str, otherwise returns a big number
+    :param s: the string
+    :param substr: the substring to find
+    :param start: the start position of the string
+    :return: the position of the substr in s, or a really large number if it can't be found
+    """
+    pos = s.find(substr, start)
+    if pos == -1:
+        return 2 ** 32
+    return pos

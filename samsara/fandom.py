@@ -5,6 +5,10 @@ def get_raw_wish_history() -> str:
     return requests.get("https://genshin-impact.fandom.com/wiki/Wish/History").text
 
 
+def get_raw_character_list() -> str:
+    return requests.get("https://genshin-impact.fandom.com/wiki/Character/List").text
+
+
 def rescale_image_url(scaled_url: str, new_size: int) -> str:
     question_index = scaled_url.rfind('?')
     slash_index = scaled_url.rfind('/')
