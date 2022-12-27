@@ -16,20 +16,25 @@ def load_characters(doc: str) -> dict:
         row_start = doc.find("<tr", row_end)
         if row_start == -1:
             break
+
         row_end = doc.find("</tr", row_start) + 1
 
-        if doc.find("static.wikia.", row_start, row_end) == -1:
-            continue
-
-        # first column is all we really need
-        if (title_pos := doc.find("title=", row_start, row_end)) == -1:
-            continue
-
-        title_pos += len('title="')
-        character_name = html.unescape(doc[title_pos : doc.find('"', title_pos)])
-
-        image_pos = doc.find("https://static.wikia", row_start, row_end)
-        img_url = doc[image_pos : doc.find('"', image_pos)]
-        result[character_name] = img_url
+        result.update(parse_character_data(doc[row_start:row_end]))
 
     return result
+
+
+def parse_character_data(doc: str) -> dict:
+    def has_data() -> bool:
+        return doc.find("static.wikia.") != -1 and doc.find("title=") != -1
+
+    if not has_data():
+        return {}
+
+    title_pos = doc.find("title=") + len('title="')
+    character_name = html.unescape(doc[title_pos : doc.find('"', title_pos)])
+
+    image_pos = doc.find("https://static.wikia")
+    img_url = doc[image_pos : doc.find('"', image_pos)]
+
+    return {character_name: img_url}
