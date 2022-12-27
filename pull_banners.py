@@ -10,7 +10,8 @@ from samsara import fandom, banners
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage="%(prog)s [OPTION]",
-        description="Pulls the banner data from Fandom page and outputs images and JSON data to specific locations. By default, it will pull only missing images.",
+        description="Pulls the banner data from Fandom page and outputs images and JSON data to specific locations. "
+        "By default, it will pull only missing images.",
     )
 
     parser.add_argument(
@@ -74,7 +75,7 @@ def write_images(args, data):
 def write_json_data(args, data):
     minified = json.dumps(banners.minify(data))
     if len(minified) < args.min_data_size:
-        raise f"Banner data was under {args.min_data_size} (was {len(minified)} -- aborting!"
+        raise f"Character data was under {args.min_data_size} (was {len(minified)} -- aborting!"
 
     with open(args.output_json, "w") as f:
         f.write(minified)

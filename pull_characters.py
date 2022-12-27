@@ -9,7 +9,8 @@ from samsara import fandom, banners, characters
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage="%(prog)s [OPTION]",
-        description="Pulls the character data from Fandom page and outputs images and JSON data to specific locations. By default, it will pull only missing images.",
+        description="Pulls the character data from Fandom page and outputs images and JSON data to specific "
+        "locations. By default, it will pull only missing images.",
     )
 
     parser.add_argument(
