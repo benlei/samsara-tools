@@ -11,5 +11,5 @@ def findi(s: str, substr: str, start: Optional[int]) -> int:
     """
     pos = s.find(substr, start)
     if pos == -1:
-        return 2 ** 32
+        return 2**32
     return pos

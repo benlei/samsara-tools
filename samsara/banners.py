@@ -45,30 +45,29 @@ def load_banners(doc: str) -> dict:
         "4": defaultdict(lambda: dict(versions=[])),
     }
 
-    start_pos = 0
-    while start_pos < len(doc):
-        if (version := get_version(start_pos)) is None:
+    end_pos = 0
+    while end_pos < len(doc):
+        if (version := get_version(end_pos)) is None:
             break
 
-        start_pos = doc.find("<table", start_pos)
+        start_pos = doc.find("<table", end_pos)
         end_pos = doc.find("</table", start_pos)
 
         parse_banners_from_version(
-            doc=doc[start_pos:end_pos+len('</table>')],
+            doc=doc[start_pos : end_pos + len("</table>")],
             version=version,
             characters=characters,
             weapons=weapons,
         )
 
-        start_pos = end_pos
     return dict(characters=characters, weapons=weapons)
 
 
 def parse_banners_from_version(
-        doc: str,
-        version: str,
-        characters: dict,
-        weapons: dict,
+    doc: str,
+    version: str,
+    characters: dict,
+    weapons: dict,
 ):
     def banner_end_pos(start: int) -> int:
         return findi(doc, "</tr", start)
@@ -109,7 +108,7 @@ def parse_banners_from_version(
                 last_weapon_date_range = get_banner_date_range(start_pos)
 
             parse_banner(
-                doc=doc[start_pos:banner_end_pos(start_pos)],
+                doc=doc[start_pos : banner_end_pos(start_pos)],
                 version=f"{version}.{weapon_banner_count}",
                 store=weapons,
             )
@@ -119,7 +118,7 @@ def parse_banners_from_version(
                 last_character_date_range = get_banner_date_range(start_pos)
 
             parse_banner(
-                doc=doc[start_pos:banner_end_pos(start_pos)],
+                doc=doc[start_pos : banner_end_pos(start_pos)],
                 version=f"{version}.{character_banner_count}",
                 store=characters,
             )
@@ -128,9 +127,9 @@ def parse_banners_from_version(
 
 
 def parse_banner(
-        doc: str,
-        version: str,
-        store: dict,
+    doc: str,
+    version: str,
+    store: dict,
 ):
     def is_finished_parsing_banner(five_pos: int, four_pos: int) -> bool:
         return min(five_pos, four_pos) > len(doc)

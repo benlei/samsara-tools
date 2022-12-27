@@ -14,6 +14,6 @@ def test_characters():
     #     json.dump(characters.load_characters(doc), f)
 
     with open(
-            pathlib.Path(__file__).parent.joinpath("expected_character_data.json"), "r"
+        pathlib.Path(__file__).parent.joinpath("expected_character_data.json"), "r"
     ) as f:
         assert json.load(f) == characters.load_characters(doc)
