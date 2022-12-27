@@ -109,9 +109,7 @@ def parse_banners_from_version(
                 last_weapon_date_range = get_banner_date_range(start_pos)
 
             parse_banner(
-                doc=doc,
-                start_pos=start_pos,
-                end_pos=banner_end_pos(start_pos),
+                doc=doc[start_pos:banner_end_pos(start_pos)],
                 version=f"{version}.{weapon_banner_count}",
                 store=weapons,
             )
@@ -121,9 +119,7 @@ def parse_banners_from_version(
                 last_character_date_range = get_banner_date_range(start_pos)
 
             parse_banner(
-                doc=doc,
-                start_pos=start_pos,
-                end_pos=banner_end_pos(start_pos),
+                doc=doc[start_pos:banner_end_pos(start_pos)],
                 version=f"{version}.{character_banner_count}",
                 store=characters,
             )
@@ -133,13 +129,11 @@ def parse_banners_from_version(
 
 def parse_banner(
         doc: str,
-        start_pos: int,
-        end_pos: int,
         version: str,
         store: dict,
 ):
-    def is_finished_parsing_banner(five_star_pos: int, four_star_pos: int) -> bool:
-        return min(five_star_pos, four_star_pos) > end_pos
+    def is_finished_parsing_banner(five_pos: int, four_pos: int) -> bool:
+        return min(five_pos, four_pos) > len(doc)
 
     def add_version(stars: str, name: str, img_url: str):
         if version not in store[stars][name]["versions"]:
@@ -148,24 +142,25 @@ def parse_banner(
         if "image" not in store[stars][name]:
             store[stars][name]["image"] = rescale_image_url(img_url, 100)
 
-    def get_stars(five_star_pos, four_star_pos) -> str:
-        if five_star_pos < four_star_pos:
+    def get_stars(five_pos, four_pos) -> str:
+        if five_pos < four_pos:
             return "5"
         return "4"
 
-    def get_img_url() -> str:
-        img_pos_start = doc.find("https://static.wikia", start_pos)
+    def get_img_url(start: int) -> str:
+        img_pos_start = doc.find("https://static.wikia", start)
         img_pos_end = doc.find('"', img_pos_start)
         img_url = doc[img_pos_start:img_pos_end]
         return img_url
 
-    def get_name() -> str:
-        title_pos_start = doc.find("title=", start_pos) + len('title="')
+    def get_name(start: int) -> str:
+        title_pos_start = doc.find("title=", start) + len('title="')
         title_pos_end = doc.find('"', title_pos_start)
         title = html.unescape(doc[title_pos_start:title_pos_end])
         return title
 
-    while start_pos < end_pos:
+    start_pos = 0
+    while start_pos < len(doc):
         five_star_pos = findi(doc, "card_5", start_pos)
         four_star_pos = findi(doc, "card_4", start_pos)
 
@@ -177,8 +172,8 @@ def parse_banner(
         start_pos = min(five_star_pos, four_star_pos) + 1
         add_version(
             stars=get_stars(five_star_pos, four_star_pos),
-            name=get_name(),
-            img_url=get_img_url(),
+            name=get_name(start_pos),
+            img_url=get_img_url(start_pos),
         )
 
 
