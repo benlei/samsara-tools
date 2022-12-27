@@ -2,8 +2,9 @@ import html
 from collections import defaultdict
 from typing import Optional
 
+from samsara import find
 from samsara.fandom import rescale_image_url
-from samsara.search import findi
+from samsara.find import findi
 
 
 def trim_doc(doc: str) -> str:
@@ -50,8 +51,7 @@ def load_banners(doc: str) -> dict:
         if (version := get_version(i)) is None:
             break
 
-        i = doc.find("<table", i)
-        end_table_pos = doc.find("</table", i)
+        [i, end_table_pos] = find.table_range(doc, i)
 
         parse_banners_from_version(
             doc=doc,
@@ -67,12 +67,12 @@ def load_banners(doc: str) -> dict:
 
 
 def parse_banners_from_version(
-    doc: str,
-    start_pos: int,
-    end_pos: int,
-    version: str,
-    characters: dict,
-    weapons: dict,
+        doc: str,
+        start_pos: int,
+        end_pos: int,
+        version: str,
+        characters: dict,
+        weapons: dict,
 ):
     def banner_end_pos() -> int:
         return findi(doc, "</tr", start_pos)
@@ -136,11 +136,11 @@ def parse_banners_from_version(
 
 
 def parse_banner(
-    doc: str,
-    start_pos: int,
-    end_pos: int,
-    version: str,
-    store: dict,
+        doc: str,
+        start_pos: int,
+        end_pos: int,
+        version: str,
+        store: dict,
 ):
     def is_finished_parsing_banner(five_star_pos: int, four_star_pos: int) -> bool:
         return min(five_star_pos, four_star_pos) > end_pos
