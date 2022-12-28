@@ -11,6 +11,16 @@ def get_raw_character_list() -> str:
     return requests.get("https://genshin-impact.fandom.com/wiki/Character/List").text
 
 
+def get_raw_artifact_domains() -> str:
+    return requests.get(
+        "https://genshin-impact.fandom.com/wiki/Domain_of_Blessing"
+    ).text
+
+
+def get_raw_artifacts_sets() -> str:
+    return requests.get("https://genshin-impact.fandom.com/wiki/Artifact/Sets").text
+
+
 def rescale_image_url(scaled_url: str, new_size: int) -> str:
     question_index = scaled_url.rfind("?")
     slash_index = scaled_url.rfind("/")
