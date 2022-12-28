@@ -111,6 +111,7 @@ def parse_banners_from_version(
                 doc=doc[start_pos : banner_end_pos(start_pos)],
                 version=f"{version}.{weapon_banner_count}",
                 store=weapons,
+                date=get_banner_date_range(start_pos),
             )
         else:
             if get_banner_date_range(start_pos) != last_character_date_range:
@@ -121,6 +122,7 @@ def parse_banners_from_version(
                 doc=doc[start_pos : banner_end_pos(start_pos)],
                 version=f"{version}.{character_banner_count}",
                 store=characters,
+                date=get_banner_date_range(start_pos),
             )
 
         start_pos = banner_end_pos(start_pos) + 1
@@ -130,6 +132,7 @@ def parse_banner(
     doc: str,
     version: str,
     store: dict,
+    date: str,
 ):
     def is_finished_parsing_banner(five_pos: int, four_pos: int) -> bool:
         return min(five_pos, four_pos) > len(doc)
@@ -140,6 +143,11 @@ def parse_banner(
 
         if "image" not in store[stars][name]:
             store[stars][name]["image"] = rescale_image_url(img_url, 100)
+
+        if "last" not in store[stars][name]:
+            store[stars][name]["last"] = date
+
+        store[stars][name]["last"] = max(store[stars][name]["last"], date)
 
     def get_stars(five_pos, four_pos) -> str:
         if five_pos < four_pos:
@@ -178,8 +186,19 @@ def parse_banner(
 
 def minify(data: dict) -> dict:
     result = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
-    for resourceType, stars in data.items():
+    for resource_type, stars in data.items():
         for star, resources in stars.items():
-            for resourceName, resource in resources.items():
-                result[resourceType][star][resourceName] = resource["versions"]
+            for resource_name, resource in resources.items():
+                result[resource_type][star][resource_name] = resource["versions"]
+    return result
+
+
+def summary_minify(data: dict) -> dict:
+    result = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+    for resource_type, stars in data.items():
+        for star, resources in stars.items():
+            for resource_name, resource in resources.items():
+                result[resource_type][star][resource_name] = resource["last"][
+                    0 : resource["last"].find(" ")
+                ]
     return result
