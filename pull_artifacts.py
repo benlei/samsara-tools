@@ -4,13 +4,13 @@ import pathlib
 from urllib import request
 
 import samsara.generate
-from samsara import fandom, characters
+from samsara import artifact_domains, artifacts, fandom
 
 
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage="%(prog)s [OPTION]",
-        description="Pulls the character data from Fandom page and outputs images and JSON data to specific "
+        description="Pulls the artifact data from Fandom page and outputs images and JSON data to specific "
         "locations. By default, it will pull only missing images.",
     )
 
@@ -48,34 +48,46 @@ def get_parser() -> argparse.ArgumentParser:
 def main() -> None:
     args: argparse.Namespace = get_parser().parse_args()
 
-    data = characters.load_characters(
-        characters.trim_doc(fandom.get_raw_character_list())
+    artifact_domain_data = artifact_domains.load_artifact_domains(
+        artifact_domains.trim_doc(fandom.get_raw_artifact_domains())
+    )
+    artifact_data = artifacts.load_5star_artifacts(
+        artifacts.trim_doc(fandom.get_raw_artifacts_sets())
     )
 
-    write_images(args, data)
+    write_images(args, artifact_data)
+    write_json_data(
+        args,
+        artifact_domain_data=artifact_domain_data,
+        artifact_data=artifact_data,
+    )
 
-    write_json_data(args, data)
 
-
-def write_images(args: argparse.Namespace, data: dict):
+def write_images(args: argparse.Namespace, data):
     image_path = pathlib.Path(args.output_image_dir)
-    for character_name, img_url in data.items():
+    for artifact_name, artifact in data.items():
         path = image_path.joinpath(
-            "characters",
-            f"{samsara.generate.filename(character_name)}.png",
+            "artifacts",
+            f"{samsara.generate.filename(artifact_name)}.png",
         )
         if args.force or not path.exists():
             request.urlretrieve(
-                img_url,
+                artifact["image"],
                 path,
             )
             print(f"Saved {path}")
 
 
-def write_json_data(args: argparse.Namespace, data: dict):
-    minified = json.dumps(characters.minify(data))
+def write_json_data(args: argparse.Namespace, artifact_domain_data, artifact_data):
+    minified = json.dumps(
+        dict(
+            artifacts=artifacts.minify(artifact_data),
+            domains=artifact_domains.minify(artifact_domain_data, artifact_data),
+        )
+    )
+
     if len(minified) < args.min_data_size:
-        raise f"Character data was under {args.min_data_size} (was {len(minified)} -- aborting!"
+        raise f"Artifact data was under {args.min_data_size} (was {len(minified)} -- aborting!"
 
     with open(args.output_json, "w") as f:
         f.write(minified)

@@ -51,3 +51,10 @@ def parse_artifact_row(doc: str) -> dict:
             ).strip(),
         }
     }
+
+
+def minify(data: dict) -> dict:
+    return {
+        artifact_name: artifact["description"]
+        for artifact_name, artifact in data.items()
+    }

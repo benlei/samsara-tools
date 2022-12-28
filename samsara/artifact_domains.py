@@ -71,3 +71,12 @@ def parse_artifacts(doc: str) -> list:
         result.append(html.unescape(doc[start_pos:end_pos]))
 
     return result
+
+
+def minify(data: dict, artifact_data: dict) -> dict:
+    return {
+        domain_name: [
+            artifact for artifact in artifact_sets if artifact in artifact_data
+        ]
+        for domain_name, artifact_sets in data.items()
+    }
