@@ -11,6 +11,7 @@ def test_load_artifact_domains():
         doc = f.read()
 
     doc = artifact_domains.trim_doc(doc)
+
     # with open(
     #     pathlib.Path(__file__).parent.joinpath(
     #         "resources/expected_artifact_domains_data.json"
