@@ -13,7 +13,7 @@ def trim_doc(doc: str) -> str:
 
 def load_5star_artifacts(doc: str) -> dict:
     def is_5star_artifact_row(start, end) -> bool:
-        return doc.find(">4-5", start_pos, end_pos) != -1
+        return doc.find(">4-5", start, end) != -1
 
     result = {}
     end_pos = 0
