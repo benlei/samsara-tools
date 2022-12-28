@@ -4,6 +4,7 @@ import pathlib
 from urllib import request
 
 import samsara.fandom
+import samsara.generate
 from samsara import fandom, banners
 
 
@@ -55,14 +56,14 @@ def main() -> None:
     write_json_data(args, data)
 
 
-def write_images(args, data):
+def write_images(args: argparse.Namespace, data: dict):
     image_path = pathlib.Path(args.output_image_dir)
     for type, stars in data.items():
         for star, resources in stars.items():
             for resourceName, resource in resources.items():
                 path = image_path.joinpath(
                     type,
-                    f"{samsara.fandom.filenameify(resourceName)}.png",
+                    f"{samsara.generate.filename(resourceName)}.png",
                 )
                 if args.force or not path.exists():
                     request.urlretrieve(
@@ -72,10 +73,10 @@ def write_images(args, data):
                     print(f"Saved {path}")
 
 
-def write_json_data(args, data):
+def write_json_data(args: argparse.Namespace, data: dict):
     minified = json.dumps(banners.minify(data))
     if len(minified) < args.min_data_size:
-        raise f"Character data was under {args.min_data_size} (was {len(minified)} -- aborting!"
+        raise f"Banner data was under {args.min_data_size} (was {len(minified)} -- aborting!"
 
     with open(args.output_json, "w") as f:
         f.write(minified)
