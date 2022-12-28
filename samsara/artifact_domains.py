@@ -48,9 +48,10 @@ def get_artifact_cell(doc: str) -> str:
 
     end_pos = 0
     while end_pos < len(doc):
-        start_pos = doc.find("<td", end_pos)
-        end_pos = doc.find("</td", start_pos)
+        if (start_pos := doc.find("<td", end_pos)) == -1:
+            break
 
+        end_pos = doc.find("</td", start_pos)
         if is_artifact_subdoc(doc[start_pos:end_pos]):
             return doc[start_pos:end_pos]
 
