@@ -36,13 +36,13 @@ def load_banners(doc: str) -> dict:
         return doc[version_pos:end_version_pos].split(" ")[1]
 
     characters = {
-        "5": defaultdict(lambda: dict(versions=[])),
-        "4": defaultdict(lambda: dict(versions=[])),
+        "5": defaultdict(lambda: dict(versions=[], dates=[])),
+        "4": defaultdict(lambda: dict(versions=[], dates=[])),
     }
 
     weapons = {
-        "5": defaultdict(lambda: dict(versions=[])),
-        "4": defaultdict(lambda: dict(versions=[])),
+        "5": defaultdict(lambda: dict(versions=[], dates=[])),
+        "4": defaultdict(lambda: dict(versions=[], dates=[])),
     }
 
     end_pos = 0
@@ -140,14 +140,10 @@ def parse_banner(
     def add_version(stars: str, name: str, img_url: str):
         if version not in store[stars][name]["versions"]:
             store[stars][name]["versions"].append(version)
+            store[stars][name]["dates"].append(date)
 
         if "image" not in store[stars][name]:
             store[stars][name]["image"] = rescale_image_url(img_url, 100)
-
-        if "last" not in store[stars][name]:
-            store[stars][name]["last"] = date
-
-        store[stars][name]["last"] = max(store[stars][name]["last"], date)
 
     def get_stars(five_pos, four_pos) -> str:
         if five_pos < four_pos:
@@ -198,7 +194,7 @@ def summary_minify(data: dict) -> dict:
     for resource_type, stars in data.items():
         for star, resources in stars.items():
             for resource_name, resource in resources.items():
-                result[resource_type][star][resource_name] = resource["last"][
-                    0 : resource["last"].find(" ")
+                result[resource_type][star][resource_name] = resource["dates"][-1][
+                    0 : resource["dates"][-1].find(" ")
                 ]
     return result
