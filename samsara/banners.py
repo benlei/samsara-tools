@@ -189,12 +189,29 @@ def minify(data: dict) -> dict:
     return result
 
 
+def get_start_date(date: str) -> str:
+    return date[
+        -len("2022-10-14 18:00:00") : -len("2022-10-14 18:00:00") + len("yyyy-mm-dd")
+    ]
+
+
+def get_end_date(date: str) -> str:
+    return date[0 : len("2022-10-14")]
+
+
 def summary_minify(data: dict) -> dict:
-    result = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+    result = defaultdict(lambda: defaultdict(lambda: defaultdict()))
     for resource_type, stars in data.items():
         for star, resources in stars.items():
             for resource_name, resource in resources.items():
-                result[resource_type][star][resource_name] = resource["dates"][-1][
-                    0 : resource["dates"][-1].find(" ")
-                ]
+                result[resource_type][star][resource_name] = dict(
+                    versions=resource["versions"],
+                    dates=[
+                        dict(
+                            start=get_start_date(date),
+                            end=get_end_date(date),
+                        )
+                        for date in resource["dates"]
+                    ],
+                )
     return result

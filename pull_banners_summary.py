@@ -3,7 +3,7 @@ import json
 
 from samsara import fandom, banners
 
-
+# TODO: Make it generate a JSON for EACH star/resource
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage="%(prog)s [OPTION]",
@@ -21,8 +21,8 @@ def get_parser() -> argparse.ArgumentParser:
         "--min-data-size",
         action="store",
         type=int,
-        default=500,
-        help="Minimum data size to expect (500 bytes by default), and if it falls below that then do nothing.",
+        default=25000,
+        help="Minimum data size to expect (25K bytes by default), and if it falls below that then do nothing.",
     )
 
     return parser
