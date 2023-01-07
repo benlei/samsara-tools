@@ -75,7 +75,7 @@ def write_images(args: argparse.Namespace, data: dict):
 def write_json_data(args: argparse.Namespace, data: dict):
     minified = json.dumps(characters.minify(data))
     if len(minified) < args.min_data_size:
-        raise f"Character data was under {args.min_data_size} (was {len(minified)} -- aborting!"
+        raise f"Character data was under {args.min_data_size} (was {len(minified)}) -- aborting!"
 
     with open(args.output_json, "w") as f:
         f.write(minified)
