@@ -87,7 +87,7 @@ def write_json_data(args: argparse.Namespace, artifact_domain_data, artifact_dat
     )
 
     if len(minified) < args.min_data_size:
-        raise f"Artifact data was under {args.min_data_size} (was {len(minified)} -- aborting!"
+        raise f"Artifact data was under {args.min_data_size} (was {len(minified)}) -- aborting!"
 
     with open(args.output_json, "w") as f:
         f.write(minified)
