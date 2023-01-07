@@ -1,4 +1,6 @@
+import datetime
 import html
+import re
 from collections import defaultdict
 from typing import Optional
 
@@ -79,7 +81,9 @@ def parse_banners_from_version(
         return findi(doc, "Epitome Invocation", start) < banner_end_pos(start)
 
     def is_row_empty(start: int) -> bool:
-        return doc.find("card_5", start, banner_end_pos(start)) == -1
+        return get_nearest_5star_card_pos(doc, start, banner_end_pos(start)) == float(
+            "inf"
+        )
 
     def get_banner_date_range(start: int) -> str:
         date_range_start_pos = doc.find('data-sort-value="', start) + len(
@@ -128,6 +132,30 @@ def parse_banners_from_version(
         start_pos = banner_end_pos(start_pos) + 1
 
 
+FiveStarMatch = re.compile(r"card[a-zA-Z\-_]*5")
+FourStarMatch = re.compile(r"card[a-zA-Z\-_]*4")
+
+
+def get_nearest_5star_card_pos(
+    doc: str, start_pos: int, end_pos: int = None
+) -> float | int:
+    match = FiveStarMatch.search(doc, start_pos, end_pos if end_pos else len(doc))
+    if match is None:
+        return float("inf")
+
+    return match.start()
+
+
+def get_nearest_4star_card_pos(
+    doc: str, start_pos: int, end_pos: int = None
+) -> float | int:
+    match = FourStarMatch.search(doc, start_pos, end_pos if end_pos else len(doc))
+    if match is None:
+        return float("inf")
+
+    return match.start()
+
+
 def parse_banner(
     doc: str,
     version: str,
@@ -164,8 +192,8 @@ def parse_banner(
 
     start_pos = 0
     while start_pos < len(doc):
-        five_star_pos = findi(doc, "card_5", start_pos)
-        four_star_pos = findi(doc, "card_4", start_pos)
+        five_star_pos = get_nearest_5star_card_pos(doc, start_pos)
+        four_star_pos = get_nearest_4star_card_pos(doc, start_pos)
 
         # there are no more char/weaps
         if is_finished_parsing_banner(five_star_pos, four_star_pos):
@@ -196,7 +224,16 @@ def get_start_date(date: str) -> str:
 
 
 def get_end_date(date: str) -> str:
-    return date[0 : len("2022-10-14")]
+    start_date = get_start_date(date)
+    end_date = date[0 : len("2022-10-14")]
+
+    if start_date == end_date:
+        end_date = (
+            datetime.datetime.strptime(start_date, "%Y-%m-%d")
+            + datetime.timedelta(days=21)
+        ).strftime("%Y-%m-%d")
+
+    return end_date
 
 
 def summary_minify(data: dict) -> dict:
