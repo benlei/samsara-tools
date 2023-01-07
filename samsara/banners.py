@@ -228,10 +228,7 @@ def get_end_date(date: str) -> str:
     end_date = date[0 : len("2022-10-14")]
 
     if start_date == end_date:
-        end_date = (
-            datetime.datetime.strptime(start_date, "%Y-%m-%d")
-            + datetime.timedelta(days=21)
-        ).strftime("%Y-%m-%d")
+        end_date = ""
 
     return end_date
 
