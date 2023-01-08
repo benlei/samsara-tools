@@ -4,6 +4,8 @@ import json
 from samsara import fandom, banners
 
 # TODO: Make it generate a JSON for EACH star/resource
+
+
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage="%(prog)s [OPTION]",

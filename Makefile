@@ -12,7 +12,11 @@ setup:
 	poetry install
 
 test:
-	poetry run pytest
+	poetry run pytest --cov=samsara tests/
+
+lint:
+	poetry run pylint --recursive y samsara || true
 
 format:
+	poetry run autopep8 -r --in-place --aggressive --aggressive .
 	poetry run black .

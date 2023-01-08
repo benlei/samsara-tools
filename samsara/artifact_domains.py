@@ -36,7 +36,7 @@ def parse_artifact_domain_row(doc: str) -> dict:
 
     artifacts = parse_artifacts(get_artifact_cell(doc))
 
-    if len(artifacts):
+    if artifacts:
         return {parse_domain_name(): artifacts}
 
     return {}
