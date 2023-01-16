@@ -3,8 +3,6 @@ import json
 
 from samsara import fandom, banners
 
-# TODO: Make it generate a JSON for EACH star/resource
-
 
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -44,7 +42,7 @@ def write_json_data(args: argparse.Namespace, data: dict):
         raise f"Sumary banner data was under {args.min_data_size} (was {len(minified)}) -- aborting!"
 
     with open(args.output_json, "w") as f:
-        f.write(minified)
+        f.write(json.dumps(banners.summary_minify(data), indent=2))
 
 
 if __name__ == "__main__":

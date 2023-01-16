@@ -79,18 +79,19 @@ def write_images(args: argparse.Namespace, data):
 
 
 def write_json_data(args: argparse.Namespace, artifact_domain_data, artifact_data):
-    minified = json.dumps(
-        dict(
+    def get_formatted_data():
+        return dict(
             artifacts=artifacts.minify(artifact_data),
             domains=artifact_domains.minify(artifact_domain_data, artifact_data),
         )
-    )
+
+    minified = json.dumps(get_formatted_data())
 
     if len(minified) < args.min_data_size:
         raise f"Artifact data was under {args.min_data_size} (was {len(minified)}) -- aborting!"
 
     with open(args.output_json, "w") as f:
-        f.write(minified)
+        f.write(json.dumps(get_formatted_data(), indent=2))
 
 
 if __name__ == "__main__":

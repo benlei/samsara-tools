@@ -79,7 +79,7 @@ def write_json_data(args: argparse.Namespace, data: dict):
         raise f"Banner data was under {args.min_data_size} (was {len(minified)}) -- aborting!"
 
     with open(args.output_json, "w") as f:
-        f.write(minified)
+        f.write(json.dumps(banners.minify(data), indent=2))
 
 
 if __name__ == "__main__":
