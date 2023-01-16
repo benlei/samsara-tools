@@ -207,15 +207,6 @@ def parse_banner(
         )
 
 
-def minify(data: dict) -> dict:
-    result = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
-    for resource_type, stars in data.items():
-        for star, resources in stars.items():
-            for resource_name, resource in resources.items():
-                result[resource_type][star][resource_name] = resource["versions"]
-    return result
-
-
 def get_start_date(date: str) -> str:
     return date[
         -len("2022-10-14 18:00:00") : -len("2022-10-14 18:00:00") + len("yyyy-mm-dd")
@@ -232,7 +223,7 @@ def get_end_date(date: str) -> str:
     return end_date
 
 
-def summary_minify(data: dict) -> dict:
+def minify(data: dict) -> dict:
     result = defaultdict(lambda: defaultdict(lambda: defaultdict()))
     for resource_type, stars in data.items():
         for star, resources in stars.items():

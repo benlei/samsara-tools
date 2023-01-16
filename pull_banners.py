@@ -1,18 +1,13 @@
 import argparse
 import json
-import pathlib
-from urllib import request
 
-import samsara.fandom
-import samsara.generate
 from samsara import fandom, banners
 
 
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage="%(prog)s [OPTION]",
-        description="Pulls the banner data from Fandom page and outputs images and JSON data to specific locations. "
-        "By default, it will pull only missing images.",
+        description="Pulls the banner data from Fandom page and outputs a summary JSON data",
     )
 
     parser.add_argument(
@@ -23,24 +18,11 @@ def get_parser() -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
-        "--output-image-dir",
-        action="store",
-        required=True,
-        help="The directory to output the image to",
-    )
-
-    parser.add_argument(
-        "--force",
-        action="store_true",
-        help="Force replaces all images with newer ones",
-    )
-
-    parser.add_argument(
         "--min-data-size",
         action="store",
         type=int,
-        default=5000,
-        help="Minimum data size to expect (5k bytes by default), and if it falls below that then do nothing.",
+        default=25000,
+        help="Minimum data size to expect (25K bytes by default), and if it falls below that then do nothing.",
     )
 
     return parser
@@ -51,32 +33,13 @@ def main() -> None:
 
     data = banners.load_banners(banners.trim_doc(fandom.get_raw_wish_history()))
 
-    write_images(args, data)
-
     write_json_data(args, data)
-
-
-def write_images(args: argparse.Namespace, data: dict):
-    image_path = pathlib.Path(args.output_image_dir)
-    for type, stars in data.items():
-        for star, resources in stars.items():
-            for resourceName, resource in resources.items():
-                path = image_path.joinpath(
-                    type,
-                    f"{samsara.generate.filename(resourceName)}.png",
-                )
-                if args.force or not path.exists():
-                    request.urlretrieve(
-                        resource["image"],
-                        path,
-                    )
-                    print(f"Saved {path}")
 
 
 def write_json_data(args: argparse.Namespace, data: dict):
     minified = json.dumps(banners.minify(data))
     if len(minified) < args.min_data_size:
-        raise f"Banner data was under {args.min_data_size} (was {len(minified)}) -- aborting!"
+        raise f"Sumary banner data was under {args.min_data_size} (was {len(minified)}) -- aborting!"
 
     with open(args.output_json, "w") as f:
         f.write(json.dumps(banners.minify(data), indent=2))
