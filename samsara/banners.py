@@ -170,7 +170,7 @@ def parse_banner(
             store[stars][name]["dates"].append(date)
 
         if "image" not in store[stars][name]:
-            store[stars][name]["image"] = rescale_image_url(img_url, 100)
+            store[stars][name]["image"] = rescale_image_url(img_url, 50)
 
     def get_stars(five_pos, four_pos) -> str:
         if five_pos < four_pos:

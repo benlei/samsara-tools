@@ -45,7 +45,7 @@ def parse_artifact_row(doc: str) -> dict:
 
     return {
         html.unescape(doc[name_start_pos:name_end_pos]): {
-            "image": fandom.rescale_image_url(doc[circ_start_pos:circ_end_pos], 80),
+            "image": fandom.rescale_image_url(doc[circ_start_pos:circ_end_pos], 50),
             "description": htmldoc.remove_tags(
                 doc[desc_start_pos:desc_end_pos].replace("<br", "\n<br")
             ).strip(),

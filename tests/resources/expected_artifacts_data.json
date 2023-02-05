@@ -1,106 +1,106 @@
 {
   "Gladiator's Finale": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/9/9b/Item_Gladiator%27s_Triumphus.png/revision/latest/scale-to-width-down/80?cb=20201120063353",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/9/9b/Item_Gladiator%27s_Triumphus.png/revision/latest/scale-to-width-down/50?cb=20201120063353",
     "description": "2 Piece: ATK +18%.\n4 Piece: If the wielder of this artifact set uses a Sword, Claymore or Polearm, increases their Normal Attack DMG by 35%."
   },
   "Wanderer's Troupe": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/8/81/Item_Conductor%27s_Top_Hat.png/revision/latest/scale-to-width-down/80?cb=20201120064011",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/8/81/Item_Conductor%27s_Top_Hat.png/revision/latest/scale-to-width-down/50?cb=20201120064011",
     "description": "2 Piece: Increases Elemental Mastery by 80.\n4 Piece: Increases Charged Attack DMG by 35% if the character uses a Catalyst or Bow."
   },
   "Noblesse Oblige": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/e/eb/Item_Royal_Masque.png/revision/latest/scale-to-width-down/80?cb=20201120063649",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/e/eb/Item_Royal_Masque.png/revision/latest/scale-to-width-down/50?cb=20201120063649",
     "description": "2 Piece: Elemental Burst DMG +20%\n4 Piece: Using an Elemental Burst increases all party members' ATK by 20% for 12s. This effect cannot stack."
   },
   "Bloodstained Chivalry": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/0/0c/Item_Bloodstained_Iron_Mask.png/revision/latest/scale-to-width-down/80?cb=20201120063804",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/0/0c/Item_Bloodstained_Iron_Mask.png/revision/latest/scale-to-width-down/50?cb=20201120063804",
     "description": "2 Piece: Physical DMG Bonus +25%\n4 Piece: After defeating an opponent, increases Charged Attack DMG by 50%, and reduces its Stamina cost to 0 for 10s. Also triggers with wild animals such as boars, squirrels and frogs."
   },
   "Maiden Beloved": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/8/82/Item_Maiden%27s_Fading_Beauty.png/revision/latest/scale-to-width-down/80?cb=20201120063505",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/8/82/Item_Maiden%27s_Fading_Beauty.png/revision/latest/scale-to-width-down/50?cb=20201120063505",
     "description": "2 Piece: Character Healing Effectiveness +15%\n4 Piece: Using an Elemental Skill or Burst increases healing received by all party members by 20% for 10s."
   },
   "Viridescent Venerer": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/8/8b/Item_Viridescent_Venerer%27s_Diadem.png/revision/latest/scale-to-width-down/80?cb=20201120064550",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/8/8b/Item_Viridescent_Venerer%27s_Diadem.png/revision/latest/scale-to-width-down/50?cb=20201120064550",
     "description": "2 Piece: Anemo DMG Bonus +15%\n4 Piece: Increases Swirl DMG by 60%. Decreases opponent's Elemental RES to the element infused in the Swirl by 40% for 10s."
   },
   "Archaic Petra": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/0/09/Item_Mask_of_Solitude_Basalt.png/revision/latest/scale-to-width-down/80?cb=20201120065000",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/0/09/Item_Mask_of_Solitude_Basalt.png/revision/latest/scale-to-width-down/50?cb=20201120065000",
     "description": "2 Piece: Geo DMG Bonus +15%\n4 Piece: Upon obtaining an Elemental Shard created through a Crystallize Reaction, all party members gain 35% DMG Bonus for that particular element for 10s. Only one form of Elemental DMG Bonus can be gained in this manner at any one time."
   },
   "Retracing Bolide": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/8/8a/Item_Summer_Night%27s_Mask.png/revision/latest/scale-to-width-down/80?cb=20201120064405",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/8/8a/Item_Summer_Night%27s_Mask.png/revision/latest/scale-to-width-down/50?cb=20201120064405",
     "description": "2 Piece: Increases Shield Strength by 35%.\n4 Piece: While protected by a shield, gain an additional 40% Normal and Charged Attack DMG."
   },
   "Thundersoother": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/1/14/Item_Thundersoother%27s_Diadem.png/revision/latest/scale-to-width-down/80?cb=20201120065551",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/1/14/Item_Thundersoother%27s_Diadem.png/revision/latest/scale-to-width-down/50?cb=20201120065551",
     "description": "2 Piece: Electro RES increased by 40%.\n4 Piece: Increases DMG against opponents affected by Electro by 35%."
   },
   "Thundering Fury": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/a/a5/Item_Thunder_Summoner%27s_Crown.png/revision/latest/scale-to-width-down/80?cb=20201120064711",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/a/a5/Item_Thunder_Summoner%27s_Crown.png/revision/latest/scale-to-width-down/50?cb=20201120064711",
     "description": "2 Piece: Electro DMG Bonus +15%\n4 Piece: Increases DMG caused by Overloaded, Electro-Charged, Superconduct, and Hyperbloom by 40%, and the DMG Bonus conferred by Aggravate is increased by 20%. When Quicken or the aforementioned Elemental Reactions are triggered, Elemental Skill CD is decreased by 1s. Can only occur once every 0.8s."
   },
   "Lavawalker": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/6/63/Item_Lavawalker%27s_Wisdom.png/revision/latest/scale-to-width-down/80?cb=20201120065219",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/6/63/Item_Lavawalker%27s_Wisdom.png/revision/latest/scale-to-width-down/50?cb=20201120065219",
     "description": "2 Piece: Pyro RES increased by 40%.\n4 Piece: Increases DMG against opponents affected by Pyro by 35%."
   },
   "Crimson Witch of Flames": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/e/ea/Item_Witch%27s_Scorching_Hat.png/revision/latest/scale-to-width-down/80?cb=20201120065429",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/e/ea/Item_Witch%27s_Scorching_Hat.png/revision/latest/scale-to-width-down/50?cb=20201120065429",
     "description": "2 Piece: Pyro DMG Bonus +15%\n4 Piece: Increases Overloaded and Burning, and Burgeon DMG by 40%. Increases Vaporize and Melt DMG by 15%. Using Elemental Skill increases the 2-Piece Set Bonus by 50% of its starting value for 10s. Max 3 stacks."
   },
   "Blizzard Strayer": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/d/df/Item_Broken_Rime%27s_Echo.png/revision/latest/scale-to-width-down/80?cb=20201225230157",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/d/df/Item_Broken_Rime%27s_Echo.png/revision/latest/scale-to-width-down/50?cb=20201225230157",
     "description": "2 Piece: Cryo DMG Bonus +15%\n4 Piece: When a character attacks an opponent affected by Cryo, their CRIT Rate is increased by 20%. If the opponent is Frozen, CRIT Rate is increased by an additional 20%."
   },
   "Heart of Depth": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/a/a6/Item_Wine-Stained_Tricorne.png/revision/latest/scale-to-width-down/80?cb=20201225230357",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/a/a6/Item_Wine-Stained_Tricorne.png/revision/latest/scale-to-width-down/50?cb=20201225230357",
     "description": "2 Piece: Hydro DMG Bonus +15%\n4 Piece: After using an Elemental Skill, increases Normal Attack and Charged Attack DMG by 30% for 15s."
   },
   "Tenacity of the Millelith": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/b/b9/Item_General%27s_Ancient_Helm.png/revision/latest/scale-to-width-down/80?cb=20210428200250",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/b/b9/Item_General%27s_Ancient_Helm.png/revision/latest/scale-to-width-down/50?cb=20210428200250",
     "description": "2 Piece: HP +20%\n4 Piece: When an Elemental Skill hits an opponent, the ATK of all nearby party members is increased by 20% and their Shield Strength is increased by 30% for 3s. This effect can be triggered once every 0.5s. This effect can still be triggered even when the character who is using this artifact set is not on the field."
   },
   "Pale Flame": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/2/23/Item_Mocking_Mask.png/revision/latest/scale-to-width-down/80?cb=20210428200636",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/2/23/Item_Mocking_Mask.png/revision/latest/scale-to-width-down/50?cb=20210428200636",
     "description": "2 Piece: Physical DMG Bonus +25%\n4 Piece: When an Elemental Skill hits an opponent, ATK is increased by 9% for 7s. This effect stacks up to 2 times and can be triggered once every 0.3s. Once 2 stacks are reached, the 2-set effect is increased by 100%."
   },
   "Shimenawa's Reminiscence": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/8/8f/Item_Capricious_Visage.png/revision/latest/scale-to-width-down/80?cb=20210721030041",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/8/8f/Item_Capricious_Visage.png/revision/latest/scale-to-width-down/50?cb=20210721030041",
     "description": "2 Piece: ATK +18%\n4 Piece: When casting an Elemental Skill, if the character has 15 or more Energy, they lose 15 Energy and Normal/Charged/Plunging Attack DMG is increased by 50% for 10s. This effect will not trigger again during that duration."
   },
   "Emblem of Severed Fate": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/0/04/Item_Ornate_Kabuto.png/revision/latest/scale-to-width-down/80?cb=20210721030152",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/0/04/Item_Ornate_Kabuto.png/revision/latest/scale-to-width-down/50?cb=20210721030152",
     "description": "2 Piece: Energy Recharge +20%\n4 Piece: Increases Elemental Burst DMG by 25% of Energy Recharge. A maximum of 75% bonus DMG can be obtained in this way."
   },
   "Husk of Opulent Dreams": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/8/84/Item_Skeletal_Hat.png/revision/latest/scale-to-width-down/80?cb=20211124024522",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/8/84/Item_Skeletal_Hat.png/revision/latest/scale-to-width-down/50?cb=20211124024522",
     "description": "2 Piece: DEF +30%\n4 Piece: A character equipped with this Artifact set will obtain the Curiosity effect in the following conditions:\nWhen on the field, the character gains 1 stack after hitting an opponent with a Geo attack, triggering a maximum of once every 0.3s.\nWhen off the field, the character gains 1 stack every 3s.\nCuriosity can stack up to 4 times, each providing 6% DEF and a 6% Geo DMG Bonus.\nWhen 6 seconds pass without gaining a Curiosity stack, 1 stack is lost."
   },
   "Ocean-Hued Clam": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/6/60/Item_Crown_of_Watatsumi.png/revision/latest/scale-to-width-down/80?cb=20211124071327",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/6/60/Item_Crown_of_Watatsumi.png/revision/latest/scale-to-width-down/50?cb=20211124071327",
     "description": "2 Piece: Healing Bonus +15%.\n4 Piece: When the character equipping this artifact set heals a character in the party, a Sea-Dyed Foam will appear for 3 seconds, accumulating the amount of HP recovered from healing (including overflow healing).\nAt the end of the duration, the Sea-Dyed Foam will explode, dealing DMG to nearby opponents based on 90% of the accumulated healing.\n(This DMG is calculated similarly to Reactions such as Electro-Charged, and Superconduct, but it is not affected by Elemental Mastery, Character Levels, or Reaction DMG Bonuses).\nOnly one Sea-Dyed Foam can be produced every 3.5 seconds.\nEach Sea-Dyed Foam can accumulate up to 30,000 HP (including overflow healing).\nThere can be no more than one Sea-Dyed Foam active at any given time.\nThis effect can still be triggered even when the character who is using this artifact set is not on the field."
   },
   "Vermillion Hereafter": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/0/0e/Item_Thundering_Poise.png/revision/latest/scale-to-width-down/80?cb=20220330033151",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/0/0e/Item_Thundering_Poise.png/revision/latest/scale-to-width-down/50?cb=20220330033151",
     "description": "2 Piece: ATK +18%.\n4 Piece: After using an Elemental Burst. this character will gain the Nascent Light effect, increasing their ATK by 8% for 16s. When the character's HP decreases, their ATK will further increase by 10%. This increase can occur this way maximum of 4 times. This effect can be triggered once every 0.8s. Nascent Light will be dispelled when the character leaves the field. If an Elemental Burst is used again during the duration of Nascent Light, the original Nascent Light will be dispelled."
   },
   "Echoes of an Offering": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/5/53/Item_Flowing_Rings.png/revision/latest/scale-to-width-down/80?cb=20220330033033",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/5/53/Item_Flowing_Rings.png/revision/latest/scale-to-width-down/50?cb=20220330033033",
     "description": "2 Piece: ATK +18%.\n4 Piece: When Normal Attacks hit opponents, there is a 36% chance that it will trigger Valley Rite, which will increase Normal Attack DMG by 70% of ATK.\nThis effect will be dispelled 0.05s after a Normal Attack deals DMG.\nIf a Normal Attack fails to trigger Valley Rite, the odds of it triggering the next time will increase by 20%.\nThis trigger can occur once every 0.2s."
   },
   "Deepwood Memories": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/b/b8/Item_Laurel_Coronet.png/revision/latest/scale-to-width-down/80?cb=20220824130425",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/b/b8/Item_Laurel_Coronet.png/revision/latest/scale-to-width-down/50?cb=20220824130425",
     "description": "2 Piece: Dendro DMG Bonus +15%\n4 Piece: After Elemental Skills or Bursts hit opponents, the targets' Dendro RES will be decreased by 30% for 8s. This effect can be triggered even if the equipping character is not on the field."
   },
   "Gilded Dreams": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/2/2b/Item_Shadow_of_the_Sand_King.png/revision/latest/scale-to-width-down/80?cb=20220826020755",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/2/2b/Item_Shadow_of_the_Sand_King.png/revision/latest/scale-to-width-down/50?cb=20220826020755",
     "description": "2 Piece: Elemental Mastery +80\n4 Piece: Within 8s of triggering an Elemental Reaction, the character equipping this will obtain buffs based on the Elemental Type of the other party members, ATK is increased by 14% for each party member whose Elemental Type is the same as the equipping character, and Elemental Mastery is increased by 50 for every party member with a different Elemental Type. Each of the aforementioned buffs will count up to 3 characters. This effect can be triggered once every 8s. The character who equips this can still trigger its effects when not on the field."
   },
   "Desert Pavilion Chronicle": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/0/0c/Item_Legacy_of_the_Desert_High-Born.png/revision/latest/scale-to-width-down/80?cb=20221207030400",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/0/0c/Item_Legacy_of_the_Desert_High-Born.png/revision/latest/scale-to-width-down/50?cb=20221207030400",
     "description": "2 Piece: Anemo DMG Bonus +15%.\n4 Piece: When Charged Attacks hit opponents, the equipping character's Normal Attack SPD will increase by 10% while Normal, Charged, and Plunging Attack DMG will increase by 40% for 15s."
   },
   "Flower of Paradise Lost": {
-    "image": "https://static.wikia.nocookie.net/gensin-impact/images/0/09/Item_Amethyst_Crown.png/revision/latest/scale-to-width-down/80?cb=20221207030348",
+    "image": "https://static.wikia.nocookie.net/gensin-impact/images/0/09/Item_Amethyst_Crown.png/revision/latest/scale-to-width-down/50?cb=20221207030348",
     "description": "2 Piece: Increases Elemental Mastery by 80.\n4 Piece: The equipping character's Bloom, Hyperbloom, and Burgeon reaction DMG are increased by 40%. Additionally, after the equipping character triggers Bloom, Hyperbloom, or Burgeon, they will gain another 25% bonus to the effect mentioned prior. Each stack of this lasts 10s. Max 4 stacks simultaneously. This effect can only be triggered once per second. The character who equips this can still trigger its effects when not on the field."
   }
 }
