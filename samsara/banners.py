@@ -1,6 +1,7 @@
 import html
 import re
 from collections import defaultdict
+from datetime import datetime
 from typing import Optional
 
 from samsara.fandom import rescale_image_url
@@ -207,10 +208,21 @@ def parse_banner(
         )
 
 
+def get_valid_date_or_blank(date: str) -> str:
+    try:
+        datetime.strptime(date, "%Y-%m-%d")
+        return date
+    except:
+        return ""
+
+
 def get_start_date(date: str) -> str:
-    return date[
-        -len("2022-10-14 18:00:00") : -len("2022-10-14 18:00:00") + len("yyyy-mm-dd")
-    ]
+    return get_valid_date_or_blank(
+        date[
+            -len("2022-10-14 18:00:00") : -len("2022-10-14 18:00:00")
+            + len("yyyy-mm-dd")
+        ]
+    )
 
 
 def get_end_date(date: str) -> str:
@@ -220,7 +232,7 @@ def get_end_date(date: str) -> str:
     if start_date == end_date:
         end_date = ""
 
-    return end_date
+    return get_valid_date_or_blank(end_date)
 
 
 def minify(data: dict) -> dict:
