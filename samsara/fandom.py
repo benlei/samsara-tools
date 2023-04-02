@@ -74,12 +74,7 @@ def query_all(params: dict[str, str]) -> QueryResponse:
 
 
 def get_event_wishes() -> QueryResponse:
-    def should_keep_category(category: Category) -> bool:
-        return category["title"].startswith("Category:Features ") or category[
-            "title"
-        ].startswith("Category:Released in ")
-
-    result = query_all(
+    return query_all(
         {
             "action": "query",
             "generator": "categorymembers",
@@ -91,23 +86,53 @@ def get_event_wishes() -> QueryResponse:
         }
     )
 
-    print(f"Total pages fetched in event wishes page: {result['total_pages']}")
 
-    page: Page
-    for page in list(result["query"]["pages"].values()):
-        if page["title"].find("/") == -1:
-            del result["query"]["pages"][str(page["pageid"])]
-            continue
+def get_5_star_characters() -> QueryResponse:
+    return query_all(
+        {
+            "action": "query",
+            "generator": "categorymembers",
+            "gcmtitle": "Category:5-Star_Characters",
+            "gcmlimit": "max",
+            "format": "json",
+        }
+    )
 
-        category: Category
-        result["query"]["pages"][str(page["pageid"])]["categories"] = list(
-            filter(
-                should_keep_category,
-                result["query"]["pages"][str(page["pageid"])]["categories"],
-            )
-        )
 
-    return result
+def get_4_star_characters() -> QueryResponse:
+    return query_all(
+        {
+            "action": "query",
+            "generator": "categorymembers",
+            "gcmtitle": "Category:4-Star_Characters",
+            "gcmlimit": "max",
+            "format": "json",
+        }
+    )
+
+
+def get_5_star_weapons() -> QueryResponse:
+    return query_all(
+        {
+            "action": "query",
+            "generator": "categorymembers",
+            "gcmtitle": "Category:5-Star_Weapons",
+            "gcmlimit": "max",
+            "format": "json",
+        }
+    )
+
+
+def get_4_star_weapons() -> QueryResponse:
+    return query_all(
+        {
+            "action": "query",
+            "generator": "categorymembers",
+            "gcmtitle": "Category:4-Star_Weapons",
+            "gcmlimit": "max",
+            "format": "json",
+        }
+    )
 
 
 def get_raw_wish_history() -> str:
