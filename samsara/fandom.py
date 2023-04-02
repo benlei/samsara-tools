@@ -2,6 +2,7 @@ from typing import TypedDict
 from mergedeep import merge, Strategy
 import requests as requests
 
+# seems like 1-2 pages a year, so this should be more than enough
 MaxContinues = 100
 
 
@@ -20,7 +21,7 @@ class Page(TypedDict):
     categories: list[Category]
 
 
-Pages = dict[int, Page]
+Pages = dict[str, Page]
 
 
 class Query(TypedDict):
@@ -31,27 +32,24 @@ class QueryResponse(TypedDict("QueryResponse", {"continue": Continuable})):
     query: Query
     errors: any
     warnings: any
+    total_pages: int
 
 
-def get_event_wishes() -> QueryResponse:
+# ref: https://stackoverflow.com/questions/312443/how-do-i-split-a-list-into-equally-sized-chunks
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i : i + n]
+
+
+def query_all(params: dict[str, str]) -> QueryResponse:
     result: QueryResponse = QueryResponse()
     start = 0
-
-    parameters = {
-        "action": "query",
-        "generator": "categorymembers",
-        "gcmtitle": "Category:Event_Wishes",
-        # "gcmtitle": "Category:Event_Wishes",
-        "prop": "categories",
-        "cllimit": "max",
-        "gcmlimit": "max",
-        "format": "json",
-    }
 
     while start < MaxContinues:
         response: QueryResponse = requests.get(
             "https://genshin-impact.fandom.com/api.php",
-            params=parameters,
+            params=params,
         ).json()
 
         print(response)
@@ -60,18 +58,42 @@ def get_event_wishes() -> QueryResponse:
             raise Exception(response["error"])
         if "warnings" in response:
             print(response["warnings"])
-        if "continue" not in response:
-            # break out of the loop when we reach the end of pagination
-            break
 
         merge(result, response, strategy=Strategy.ADDITIVE)
-        parameters["clcontinue"] = response["continue"]["clcontinue"]
-        parameters["continue"] = response["continue"]["continue"]
 
         start += 1
-        continue
 
-    print(f"Total pages fetched: {start}")
+        if "continue" in response:
+            params["clcontinue"] = response["continue"]["clcontinue"]
+            params["continue"] = response["continue"]["continue"]
+            # break out of the loop when we reach the end of pagination
+            continue
+        break
+
+    result["total_pages"] = start
+    return result
+
+
+def get_event_wishes() -> QueryResponse:
+    result = query_all(
+        {
+            "action": "query",
+            "generator": "categorymembers",
+            "gcmtitle": "Category:Event_Wishes",
+            "prop": "categories",
+            "cllimit": "max",
+            "gcmlimit": "max",
+            "format": "json",
+        }
+    )
+
+    print(f"Total pages fetched in event wishes page: {result['total_pages']}")
+
+    page: Page
+    for page in list(result["query"]["pages"].values()):
+        if page["title"].find("/") == -1:
+            del result["query"]["pages"][str(page["pageid"])]
+
     return result
 
 
