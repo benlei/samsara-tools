@@ -1,6 +1,7 @@
 from typing import TypedDict
-from mergedeep import merge, Strategy
+
 import requests as requests
+from mergedeep import merge, Strategy
 
 # seems like 1-2 pages a year, so this should be more than enough
 MaxContinues = 100
@@ -52,8 +53,6 @@ def query_all(params: dict[str, str]) -> QueryResponse:
             params=params,
         ).json()
 
-        print(response)
-
         if "error" in response:
             raise Exception(response["error"])
         if "warnings" in response:
@@ -75,6 +74,11 @@ def query_all(params: dict[str, str]) -> QueryResponse:
 
 
 def get_event_wishes() -> QueryResponse:
+    def should_keep_category(category: Category) -> bool:
+        return category["title"].startswith("Category:Features ") or category[
+            "title"
+        ].startswith("Category:Released in ")
+
     result = query_all(
         {
             "action": "query",
@@ -93,6 +97,15 @@ def get_event_wishes() -> QueryResponse:
     for page in list(result["query"]["pages"].values()):
         if page["title"].find("/") == -1:
             del result["query"]["pages"][str(page["pageid"])]
+            continue
+
+        category: Category
+        result["query"]["pages"][str(page["pageid"])]["categories"] = list(
+            filter(
+                should_keep_category,
+                result["query"]["pages"][str(page["pageid"])]["categories"],
+            )
+        )
 
     return result
 
