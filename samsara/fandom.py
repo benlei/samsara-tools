@@ -1,3 +1,5 @@
+import logging
+import shutil
 from typing import TypedDict
 
 import requests as requests
@@ -133,6 +135,38 @@ def get_4_star_weapons() -> QueryResponse:
             "format": "json",
         }
     )
+
+
+def download_character_image(output_path: str, character_name: str, size: int):
+    r = requests.get(
+        f"https://genshin-impact.fandom.com/index.php?title=Special:Redirect/file/{character_name} Icon.png&width={size}&height={size}",
+        stream=True,
+    )
+
+    if r.status_code != 200:
+        logging.warning(
+            f"Received status {r.status_code} trying to download weapon image {character_name}"
+        )
+    else:
+        with open(output_path, "wb") as f:
+            r.raw.decode_content = True
+            shutil.copyfileobj(r.raw, f)
+
+
+def download_weapon_image(output_path: str, weapon_name: str, size: int):
+    r = requests.get(
+        f"https://genshin-impact.fandom.com/index.php?title=Special:Redirect/file/Weapon {weapon_name}.png&width={size}&height={size}",
+        stream=True,
+    )
+
+    if r.status_code != 200:
+        logging.warning(
+            f"Received status {r.status_code} trying to download weapon image {weapon_name}"
+        )
+    else:
+        with open(output_path, "wb") as f:
+            r.raw.decode_content = True
+            shutil.copyfileobj(r.raw, f)
 
 
 def get_raw_wish_history() -> str:
