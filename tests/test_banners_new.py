@@ -1,3 +1,4 @@
+import json
 from unittest import TestCase
 
 from samsara.banners_new import transform_data
