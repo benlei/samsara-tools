@@ -1,3 +1,5 @@
+from unittest import TestCase
+
 from samsara.banners_new import transform_data
 from tests.expected_banner_results import ExpectedTransformedData
 from tests.mock_query_responses import (

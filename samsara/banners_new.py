@@ -47,7 +47,7 @@ def get_version_from_page(p: Page) -> str:
     return versions[0]["title"][len(CategoryVersionPrefix) :]
 
 
-def is_banner_page(page: Page) -> bool:
+def is_page_banner(page: Page) -> bool:
     return page["title"].find("/") != -1
 
 
@@ -55,7 +55,7 @@ def get_banner_date(p: Page) -> str:
     return p["title"].split("/")[1]
 
 
-def categories_contain_featured(p: Page, featured: str) -> bool:
+def page_contain_featured(p: Page, featured: str) -> bool:
     return (
         len(
             [
@@ -68,6 +68,36 @@ def categories_contain_featured(p: Page, featured: str) -> bool:
     )
 
 
+def get_pages_of_version(event_wishes_qr: QueryResponse, version: str) -> list[Page]:
+    return sorted(
+        [
+            p
+            for p in event_wishes_qr["query"]["pages"].values()
+            if is_page_banner(p) and get_version_from_page(p) == version
+        ],
+        key=get_banner_date,
+    )
+
+
+def get_minor_version(
+    event_wishes_qr: QueryResponse,
+    version: str,
+    featured: str,
+) -> int:
+    result = 0
+    start_date = ""
+
+    for p in get_pages_of_version(event_wishes_qr, version):
+        if get_banner_date(p) != start_date:
+            start_date = get_banner_date(p)
+            result += 1
+
+        if page_contain_featured(p, featured):
+            break
+
+    return result
+
+
 def get_featured_versions(
     event_wishes_qr: QueryResponse,
     featured: str,
@@ -76,11 +106,13 @@ def get_featured_versions(
 
     page: Page
     for page in event_wishes_qr["query"]["pages"].values():
-        if not is_banner_page(page):
+        if not is_page_banner(page):
             continue
 
-        if categories_contain_featured(page, featured):
-            result.append(get_version_from_page(page))
+        if page_contain_featured(page, featured):
+            result.append(
+                f"{get_version_from_page(page)}.{get_minor_version(event_wishes_qr, get_version_from_page(page), featured)}"
+            )
 
     result.sort(key=StrictVersion)
     return result
@@ -90,7 +122,7 @@ def get_next_banner_date(event_wishes_qr: QueryResponse, start_date: str) -> str
     result = [
         get_banner_date(p)
         for p in event_wishes_qr["query"]["pages"].values()
-        if is_banner_page(p) and get_banner_date(p) > start_date
+        if is_page_banner(p) and get_banner_date(p) > start_date
     ]
 
     if len(result) > 0:
@@ -106,10 +138,10 @@ def get_featured_dates(
 
     page: Page
     for page in event_wishes_qr["query"]["pages"].values():
-        if not is_banner_page(page):
+        if not is_page_banner(page):
             continue
 
-        if categories_contain_featured(page, featured):
+        if page_contain_featured(page, featured):
             result.append(
                 {
                     "start": get_valid_date_or_blank(get_banner_date(page)),
@@ -133,18 +165,66 @@ def transform_data(
     five_star_weapons_qr: QueryResponse,
     four_star_weapons_qr: QueryResponse,
 ) -> BannerDataset:
+    result: BannerDataset = {
+        "five_star_characters": [],
+        "four_star_characters": [],
+        "five_star_weapons": [],
+        "four_star_weapons": [],
+    }
+
     page: Page
     for page in five_star_characters_qr["query"]["pages"].values():
-        print(page["title"])
-        print(f"  {get_featured_versions(event_wishes_qr, page['title'])}")
-        print(f"  {get_featured_dates(event_wishes_qr, page['title'])}")
+        result["five_star_characters"].append(
+            {
+                "name": page["title"],
+                "versions": get_featured_versions(event_wishes_qr, page["title"]),
+                "dates": get_featured_dates(event_wishes_qr, page["title"]),
+            }
+        )
 
-    # strategy (example):
-    # 1. setup separate character and weapon timeline (list)
-    #     - sorted by its version and/or maybe its date, and with maybe
-    #       its queryresponse (or some form of it)
-    #     - non-dated ones should go to the end.
-    #     - make sure to use the version parse library to compare:
-    #       https://stackoverflow.com/questions/11887762/how-do-i-compare-version-numbers-in-python
-    # 2. go through timeline and start filling out each banner history!
-    pass
+    result["five_star_characters"] = sorted(
+        [r for r in result["five_star_characters"] if len(r["versions"]) > 0],
+        key=lambda f: f["versions"][0],
+    )
+
+    for page in four_star_characters_qr["query"]["pages"].values():
+        result["four_star_characters"].append(
+            {
+                "name": page["title"],
+                "versions": get_featured_versions(event_wishes_qr, page["title"]),
+                "dates": get_featured_dates(event_wishes_qr, page["title"]),
+            }
+        )
+
+    result["four_star_characters"] = sorted(
+        [r for r in result["four_star_characters"] if len(r["versions"]) > 0],
+        key=lambda f: f["versions"][0],
+    )
+
+    for page in five_star_weapons_qr["query"]["pages"].values():
+        result["five_star_weapons"].append(
+            {
+                "name": page["title"],
+                "versions": get_featured_versions(event_wishes_qr, page["title"]),
+                "dates": get_featured_dates(event_wishes_qr, page["title"]),
+            }
+        )
+
+    result["five_star_weapons"] = sorted(
+        [r for r in result["five_star_weapons"] if len(r["versions"]) > 0],
+        key=lambda f: f["versions"][0],
+    )
+
+    for page in four_star_weapons_qr["query"]["pages"].values():
+        result["four_star_weapons"].append(
+            {
+                "name": page["title"],
+                "versions": get_featured_versions(event_wishes_qr, page["title"]),
+                "dates": get_featured_dates(event_wishes_qr, page["title"]),
+            }
+        )
+    result["four_star_weapons"] = sorted(
+        [r for r in result["four_star_weapons"] if len(r["versions"]) > 0],
+        key=lambda f: f["versions"][0],
+    )
+    return result
