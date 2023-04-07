@@ -1,6 +1,6 @@
 import logging
 import shutil
-from typing import TypedDict
+from typing import TypedDict, Optional, NotRequired
 
 import requests as requests
 from mergedeep import merge, Strategy
@@ -9,9 +9,14 @@ from mergedeep import merge, Strategy
 MaxContinues = 100
 
 
-class Continuable(TypedDict("ContinuableResponse", {"continue": str})):
-    clcontinue: str
-    gcmcontinue: str
+Continuable = TypedDict(
+    "Continuable",
+    {
+        "continue": NotRequired[str],
+        "clcontinue": NotRequired[str],
+        "gcmcontinue": NotRequired[str],
+    },
+)
 
 
 class Category(TypedDict):
@@ -28,14 +33,19 @@ Pages = dict[str, Page]
 
 
 class Query(TypedDict):
-    pages: Pages
+    pages: NotRequired[Pages]
 
 
-class QueryResponse(TypedDict("QueryResponse", {"continue": Continuable})):
-    query: Query
-    errors: any
-    warnings: any
-    total_pages: int
+QueryResponse = TypedDict(
+    "QueryResponse",
+    {
+        "continue": NotRequired[Continuable],
+        "query": NotRequired[Query],
+        "errors": NotRequired[any],
+        "warnings": NotRequired[any],
+        "total_pages": NotRequired[int],
+    },
+)
 
 
 # ref: https://stackoverflow.com/questions/312443/how-do-i-split-a-list-into-equally-sized-chunks

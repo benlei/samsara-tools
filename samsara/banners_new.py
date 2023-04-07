@@ -15,10 +15,10 @@ class BannerHistory(TypedDict):
 
 
 class BannerDataset(TypedDict):
-    five_star_characters: BannerHistory
-    four_star_characters: BannerHistory
-    five_star_weapons: BannerHistory
-    four_star_weapons: BannerHistory
+    five_star_characters: list[BannerHistory]
+    four_star_characters: list[BannerHistory]
+    five_star_weapons: list[BannerHistory]
+    four_star_weapons: list[BannerHistory]
 
 
 def transform_data(
