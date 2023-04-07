@@ -66,9 +66,8 @@ def main() -> None:
         fandom.get_4_star_weapons(),
     )
 
-    write_images(args, data)
-
     write_data(args, data)
+    write_images(args, data)
 
 
 def write_images(args: argparse.Namespace, data: BannerDataset):
