@@ -12,17 +12,6 @@ from tests.mock_query_responses import (
 
 
 def test_transform_data():
-    print(
-        json.dumps(
-            transform_data(
-                MockEventWishesQueryResponse,
-                MockFiveStarCharacterQueryResponse,
-                MockFourStarCharacterQueryResponse,
-                MockFiveStarWeaponQueryResponse,
-                MockFourStarWeaponQueryResponse,
-            )
-        )
-    )
     assert ExpectedTransformedData == transform_data(
         MockEventWishesQueryResponse,
         MockFiveStarCharacterQueryResponse,

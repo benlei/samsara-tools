@@ -1,10 +1,8 @@
-import json
-from collections import defaultdict
 from datetime import datetime
 from distutils.version import StrictVersion
-from typing import TypedDict
+from typing import TypedDict, TypeVar
 
-from samsara.fandom import QueryResponse, Page, Category
+from samsara.fandom import QueryResponse, Page
 
 CategoryVersionPrefix = "Category:Released in Version "
 CategoryFeaturedPrefix = "Category:Features "
@@ -110,10 +108,22 @@ def get_minor_version(
     return result
 
 
+T = TypeVar("T")
+
+
+def append_unique(l: list[T], value: T):
+    if value not in l:
+        l.append(value)
+
+
 def get_featured_versions(
     event_wishes_qr: QueryResponse,
     featured: str,
 ) -> list[str]:
+    def add_version_to_list(l: list[str], version: str):
+        if version not in l:
+            l.append(version)
+
     result: list[str] = []
 
     page: Page
@@ -122,8 +132,18 @@ def get_featured_versions(
             continue
 
         if page_contain_featured(page, featured):
-            result.append(
-                f"{get_version_from_page(page)}.{get_minor_version(event_wishes_qr, get_version_from_page(page), featured, is_page_weapon(page))}"
+            append_unique(
+                result,
+                get_version_from_page(page)
+                + "."
+                + str(
+                    get_minor_version(
+                        event_wishes_qr,
+                        get_version_from_page(page),
+                        featured,
+                        is_page_weapon(page),
+                    )
+                ),
             )
 
     result.sort(key=StrictVersion)
@@ -135,13 +155,15 @@ def get_next_banner_date(
     start_date: str,
     is_weapon: bool,
 ) -> str:
-    result = [
-        get_banner_date(p)
-        for p in event_wishes_qr["query"]["pages"].values()
-        if is_page_banner(p)
-        and is_page_weapon(p) == is_weapon
-        and get_banner_date(p) > start_date
-    ]
+    result = sorted(
+        [
+            get_banner_date(p)
+            for p in event_wishes_qr["query"]["pages"].values()
+            if is_page_banner(p)
+            and is_page_weapon(p) == is_weapon
+            and get_banner_date(p) > start_date
+        ]
+    )
 
     if len(result) > 0:
         return result[0]
@@ -160,7 +182,8 @@ def get_featured_dates(
             continue
 
         if page_contain_featured(page, featured):
-            result.append(
+            append_unique(
+                result,
                 {
                     "start": get_valid_date_or_blank(get_banner_date(page)),
                     "end": get_valid_date_or_blank(
@@ -168,7 +191,7 @@ def get_featured_dates(
                             event_wishes_qr, get_banner_date(page), is_page_weapon(page)
                         )
                     ),
-                }
+                },
             )
 
     def get_banner_start_date(b: BannerDates) -> str:
@@ -192,6 +215,7 @@ def get_featured_banner_history(
                 "dates": get_featured_dates(event_wishes_qr, page["title"]),
             }
         )
+        assert len(result[-1]["versions"]) == len(result[-1]["dates"])
 
     return sorted(
         [r for r in result if len(r["versions"]) > 0],
