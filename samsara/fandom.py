@@ -1,13 +1,13 @@
 import logging
 import shutil
-from typing import TypedDict, Optional, NotRequired
+from pathlib import Path
+from typing import TypedDict, NotRequired
 
 import requests as requests
 from mergedeep import merge, Strategy
 
 # seems like 1-2 pages a year, so this should be more than enough
 MaxContinues = 100
-
 
 Continuable = TypedDict(
     "Continuable",
@@ -79,6 +79,7 @@ def query_all(params: dict[str, str]) -> QueryResponse:
 
 
 def get_event_wishes() -> QueryResponse:
+    logging.info("gathering all event wishes")
     return query_all(
         {
             "action": "query",
@@ -93,6 +94,7 @@ def get_event_wishes() -> QueryResponse:
 
 
 def get_5_star_characters() -> QueryResponse:
+    logging.info("gathering all 5 star characters")
     return query_all(
         {
             "action": "query",
@@ -105,6 +107,7 @@ def get_5_star_characters() -> QueryResponse:
 
 
 def get_4_star_characters() -> QueryResponse:
+    logging.info("gathering all 4 star characters")
     return query_all(
         {
             "action": "query",
@@ -117,6 +120,7 @@ def get_4_star_characters() -> QueryResponse:
 
 
 def get_5_star_weapons() -> QueryResponse:
+    logging.info("gathering all 5 star weapons")
     return query_all(
         {
             "action": "query",
@@ -129,6 +133,7 @@ def get_5_star_weapons() -> QueryResponse:
 
 
 def get_4_star_weapons() -> QueryResponse:
+    logging.info("gathering all 4 star weapons")
     return query_all(
         {
             "action": "query",
@@ -140,7 +145,8 @@ def get_4_star_weapons() -> QueryResponse:
     )
 
 
-def download_character_image(output_path: str, character_name: str, size: int):
+def download_character_image(output_path: str | Path, character_name: str, size: int):
+    logging.info(f"downloading {character_name} icon to {output_path}")
     r = requests.get(
         f"https://genshin-impact.fandom.com/index.php?title=Special:Redirect/file/{character_name} Icon.png&width={size}&height={size}",
         stream=True,
@@ -156,7 +162,9 @@ def download_character_image(output_path: str, character_name: str, size: int):
             shutil.copyfileobj(r.raw, f)
 
 
-def download_weapon_image(output_path: str, weapon_name: str, size: int):
+def download_weapon_image(output_path: str | Path, weapon_name: str, size: int):
+    logging.info(f"downloading {weapon_name} icon to {output_path}")
+
     r = requests.get(
         f"https://genshin-impact.fandom.com/index.php?title=Special:Redirect/file/Weapon {weapon_name}.png&width={size}&height={size}",
         stream=True,

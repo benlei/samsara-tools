@@ -1,11 +1,18 @@
 import argparse
-import json
+import logging
 import pathlib
-from urllib import request
+
+import yaml
 
 import samsara.fandom
 import samsara.generate
 from samsara import fandom, banners
+from samsara.banners import BannerDataset, BannerHistory
+
+
+class Dumper(yaml.Dumper):
+    def increase_indent(self, flow=False, *args, **kwargs):
+        return super().increase_indent(flow=flow, indentless=False)
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -16,10 +23,10 @@ def get_parser() -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
-        "--output-json",
+        "--output",
         action="store",
         required=True,
-        help="The location to output the JSON data to",
+        help="The location to output the data to",
     )
 
     parser.add_argument(
@@ -39,47 +46,67 @@ def get_parser() -> argparse.ArgumentParser:
         "--min-data-size",
         action="store",
         type=int,
-        default=25000,
-        help="Minimum data size to expect (25k bytes by default), and if it falls below that then do nothing.",
+        default=40000,
+        help="Minimum data size to expect (40k bytes by default), and if it falls below that then do nothing.",
     )
 
     return parser
 
 
 def main() -> None:
+    logging.basicConfig(level=logging.INFO)
+
     args: argparse.Namespace = get_parser().parse_args()
 
-    data = banners.load_banners(banners.trim_doc(fandom.get_raw_wish_history()))
+    data = banners.transform_data(
+        fandom.get_event_wishes(),
+        fandom.get_5_star_characters(),
+        fandom.get_4_star_characters(),
+        fandom.get_5_star_weapons(),
+        fandom.get_4_star_weapons(),
+    )
 
     write_images(args, data)
 
-    write_json_data(args, data)
+    write_data(args, data)
 
 
-def write_images(args: argparse.Namespace, data: dict):
+def write_images(args: argparse.Namespace, data: BannerDataset):
+    def get_generic_feature_type(feature_type: str) -> str:
+        if feature_type.find("character") != -1:
+            return "characters"
+        return "weapons"
+
     image_path = pathlib.Path(args.output_image_dir)
-    for type, stars in data.items():
-        for star, resources in stars.items():
-            for resourceName, resource in resources.items():
-                path = image_path.joinpath(
-                    type,
-                    f"{samsara.generate.filename(resourceName)}.png",
-                )
-                if args.force or not path.exists():
-                    request.urlretrieve(
-                        resource["image"],
-                        path,
-                    )
-                    print(f"Saved {path}")
+    featured_type: str
+    banner_history_list: list[BannerHistory]
+    for featured_type, banner_history_list in data.items():
+        for bannerHistory in banner_history_list:
+            path = image_path.joinpath(
+                get_generic_feature_type(featured_type),
+                f"{samsara.generate.filename(bannerHistory['name'])}.png",
+            )
+
+            if args.force or not path.exists():
+                if get_generic_feature_type(featured_type) == "characters":
+                    fandom.download_character_image(path, bannerHistory["name"], 80)
+                else:
+                    fandom.download_weapon_image(path, bannerHistory["name"], 80)
 
 
-def write_json_data(args: argparse.Namespace, data: dict):
-    minified = json.dumps(banners.minify(data))
-    if len(minified) < args.min_data_size:
-        raise f"Banner data was under {args.min_data_size} (was {len(minified)}) -- aborting!"
+def write_data(args: argparse.Namespace, data: BannerDataset):
+    dump = yaml.dump(
+        data,
+        default_flow_style=False,
+        sort_keys=False,
+        Dumper=Dumper,
+    )
 
-    with open(args.output_json, "w") as f:
-        f.write(json.dumps(banners.minify(data), indent=2))
+    if len(dump) < args.min_data_size:
+        raise f"Banner data was under {args.min_data_size} (was {len(dump)}) -- aborting!"
+
+    with open(args.output, "w") as f:
+        f.write(dump)
 
 
 if __name__ == "__main__":
