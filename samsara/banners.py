@@ -1,211 +1,31 @@
-import html
-import re
+import json
 from collections import defaultdict
 from datetime import datetime
-from typing import Optional
+from distutils.version import StrictVersion
+from typing import TypedDict
 
-from samsara.fandom import rescale_image_url
-from samsara.find import findi
+from samsara.fandom import QueryResponse, Page, Category
 
-
-def trim_doc(doc: str) -> str:
-    """
-    Removes unnecessary information from the doc so that it can focus solely on banner information
-    :param doc: the doc string
-    :return: a trimmed version of the doc
-    """
-    start = doc.rindex(">Wishes by Version<")
-    end = doc.rindex(">Wishes by Type<")
-    doc = doc[start:end]
-    return doc
+CategoryVersionPrefix = "Category:Released in Version "
+CategoryFeaturedPrefix = "Category:Features "
 
 
-def load_banners(doc: str) -> dict:
-    """
-    Loads up the wish history based on the input doc
-    :param doc: the wish history doc
-    :return: a dictionary with a characters and weapons field
-    """
-
-    def get_version(start: int) -> Optional[str]:
-        version_pos = doc.find(">Version", start)
-
-        # it's the end
-        if version_pos == -1:
-            return None
-
-        end_version_pos = doc.find("<", version_pos)
-        return doc[version_pos:end_version_pos].split(" ")[1]
-
-    characters = {
-        "5": defaultdict(lambda: dict(versions=[], dates=[])),
-        "4": defaultdict(lambda: dict(versions=[], dates=[])),
-    }
-
-    weapons = {
-        "5": defaultdict(lambda: dict(versions=[], dates=[])),
-        "4": defaultdict(lambda: dict(versions=[], dates=[])),
-    }
-
-    end_pos = 0
-    while end_pos < len(doc):
-        if (version := get_version(end_pos)) is None:
-            break
-
-        start_pos = doc.find("<table", end_pos)
-        end_pos = doc.find("</table", start_pos)
-
-        parse_banners_from_version(
-            doc=doc[start_pos : end_pos + len("</table>")],
-            version=version,
-            characters=characters,
-            weapons=weapons,
-        )
-
-    return dict(characters=characters, weapons=weapons)
+class BannerDates(TypedDict):
+    start: str
+    end: str
 
 
-def parse_banners_from_version(
-    doc: str,
-    version: str,
-    characters: dict,
-    weapons: dict,
-):
-    def banner_end_pos(start: int) -> int:
-        return findi(doc, "</tr", start)
-
-    def is_finished_parsing_version(start: int) -> bool:
-        return banner_end_pos(start) > len(doc)
-
-    def is_weapon_banner(start: int) -> bool:
-        return findi(doc, "Epitome Invocation", start) < banner_end_pos(start)
-
-    def is_row_empty(start: int) -> bool:
-        return get_nearest_5star_card_pos(doc, start, banner_end_pos(start)) == float(
-            "inf"
-        )
-
-    def get_banner_date_range(start: int) -> str:
-        date_range_start_pos = doc.find('data-sort-value="', start) + len(
-            'data-sort-value="'
-        )
-        date_range_end_pos = doc.find('"', date_range_start_pos)
-        return doc[date_range_start_pos:date_range_end_pos]
-
-    last_character_date_range = None
-    last_weapon_date_range = None
-    character_banner_count = 0
-    weapon_banner_count = 0
-    start_pos = 0
-    while start_pos < len(doc):
-        if is_finished_parsing_version(start_pos):
-            break
-
-        if is_row_empty(start_pos):
-            start_pos = banner_end_pos(start_pos) + 1
-            continue
-
-        # start going through the cards (char/weap)!
-        if is_weapon_banner(start_pos):
-            if get_banner_date_range(start_pos) != last_weapon_date_range:
-                weapon_banner_count += 1
-                last_weapon_date_range = get_banner_date_range(start_pos)
-
-            parse_banner(
-                doc=doc[start_pos : banner_end_pos(start_pos)],
-                version=f"{version}.{weapon_banner_count}",
-                store=weapons,
-                date=get_banner_date_range(start_pos),
-            )
-        else:
-            if get_banner_date_range(start_pos) != last_character_date_range:
-                character_banner_count += 1
-                last_character_date_range = get_banner_date_range(start_pos)
-
-            parse_banner(
-                doc=doc[start_pos : banner_end_pos(start_pos)],
-                version=f"{version}.{character_banner_count}",
-                store=characters,
-                date=get_banner_date_range(start_pos),
-            )
-
-        start_pos = banner_end_pos(start_pos) + 1
+class BannerHistory(TypedDict):
+    name: str
+    versions: list[str]
+    dates: list[BannerDates]
 
 
-FiveStarMatch = re.compile(r"card[a-zA-Z\-_]*5")
-FourStarMatch = re.compile(r"card[a-zA-Z\-_]*4")
-
-
-def get_nearest_5star_card_pos(
-    doc: str, start_pos: int, end_pos: int = None
-) -> float | int:
-    match = FiveStarMatch.search(doc, start_pos, end_pos if end_pos else len(doc))
-    if match is None:
-        return float("inf")
-
-    return match.start()
-
-
-def get_nearest_4star_card_pos(
-    doc: str, start_pos: int, end_pos: int = None
-) -> float | int:
-    match = FourStarMatch.search(doc, start_pos, end_pos if end_pos else len(doc))
-    if match is None:
-        return float("inf")
-
-    return match.start()
-
-
-def parse_banner(
-    doc: str,
-    version: str,
-    store: dict,
-    date: str,
-):
-    def is_finished_parsing_banner(five_pos: int, four_pos: int) -> bool:
-        return min(five_pos, four_pos) > len(doc)
-
-    def add_version(stars: str, name: str, img_url: str):
-        if version not in store[stars][name]["versions"]:
-            store[stars][name]["versions"].append(version)
-            store[stars][name]["dates"].append(date)
-
-        if "image" not in store[stars][name]:
-            store[stars][name]["image"] = rescale_image_url(img_url, 50)
-
-    def get_stars(five_pos, four_pos) -> str:
-        if five_pos < four_pos:
-            return "5"
-        return "4"
-
-    def get_img_url(start: int) -> str:
-        img_pos_start = doc.find("https://static.wikia", start)
-        img_pos_end = doc.find('"', img_pos_start)
-        img_url = doc[img_pos_start:img_pos_end]
-        return img_url
-
-    def get_name(start: int) -> str:
-        title_pos_start = doc.find("title=", start) + len('title="')
-        title_pos_end = doc.find('"', title_pos_start)
-        title = html.unescape(doc[title_pos_start:title_pos_end])
-        return title
-
-    start_pos = 0
-    while start_pos < len(doc):
-        five_star_pos = get_nearest_5star_card_pos(doc, start_pos)
-        four_star_pos = get_nearest_4star_card_pos(doc, start_pos)
-
-        # there are no more char/weaps
-        if is_finished_parsing_banner(five_star_pos, four_star_pos):
-            break
-
-        # advance the pointer
-        start_pos = min(five_star_pos, four_star_pos) + 1
-        add_version(
-            stars=get_stars(five_star_pos, four_star_pos),
-            name=get_name(start_pos),
-            img_url=get_img_url(start_pos),
-        )
+class BannerDataset(TypedDict):
+    five_star_characters: list[BannerHistory]
+    four_star_characters: list[BannerHistory]
+    five_star_weapons: list[BannerHistory]
+    four_star_weapons: list[BannerHistory]
 
 
 def get_valid_date_or_blank(date: str) -> str:
@@ -216,38 +36,171 @@ def get_valid_date_or_blank(date: str) -> str:
         return ""
 
 
-def get_start_date(date: str) -> str:
-    return get_valid_date_or_blank(
-        date[
-            -len("2022-10-14 18:00:00") : -len("2022-10-14 18:00:00")
-            + len("yyyy-mm-dd")
-        ]
+def get_version_from_page(p: Page) -> str:
+    versions = [
+        c for c in p["categories"] if c["title"].startswith(CategoryVersionPrefix)
+    ]
+
+    if len(versions) != 1:
+        raise Exception(f"Expected 1 version result, found {len(versions)}")
+
+    return versions[0]["title"][len(CategoryVersionPrefix) :]
+
+
+def is_page_banner(page: Page) -> bool:
+    return page["title"].find("/") != -1
+
+
+def get_banner_date(p: Page) -> str:
+    return p["title"].split("/")[1]
+
+
+def page_contain_featured(p: Page, featured: str) -> bool:
+    return (
+        len(
+            [
+                c
+                for c in p["categories"]
+                if c["title"] == f"{CategoryFeaturedPrefix}{featured}"
+            ]
+        )
+        > 0
     )
 
 
-def get_end_date(date: str) -> str:
-    start_date = get_start_date(date)
-    end_date = date[0 : len("2022-10-14")]
+def get_pages_of_version(event_wishes_qr: QueryResponse, version: str) -> list[Page]:
+    return sorted(
+        [
+            p
+            for p in event_wishes_qr["query"]["pages"].values()
+            if is_page_banner(p) and get_version_from_page(p) == version
+        ],
+        key=get_banner_date,
+    )
 
-    if start_date == end_date:
-        end_date = ""
 
-    return get_valid_date_or_blank(end_date)
+def get_minor_version(
+    event_wishes_qr: QueryResponse,
+    version: str,
+    featured: str,
+) -> int:
+    result = 0
+    start_date = ""
 
+    for p in get_pages_of_version(event_wishes_qr, version):
+        if get_banner_date(p) != start_date:
+            start_date = get_banner_date(p)
+            result += 1
 
-def minify(data: dict) -> dict:
-    result = defaultdict(lambda: defaultdict(lambda: defaultdict()))
-    for resource_type, stars in data.items():
-        for star, resources in stars.items():
-            for resource_name, resource in resources.items():
-                result[resource_type][star][resource_name] = dict(
-                    versions=resource["versions"],
-                    dates=[
-                        dict(
-                            start=get_start_date(date),
-                            end=get_end_date(date),
-                        )
-                        for date in resource["dates"]
-                    ],
-                )
+        if page_contain_featured(p, featured):
+            break
+
     return result
+
+
+def get_featured_versions(
+    event_wishes_qr: QueryResponse,
+    featured: str,
+) -> list[str]:
+    result: list[str] = []
+
+    page: Page
+    for page in event_wishes_qr["query"]["pages"].values():
+        if not is_page_banner(page):
+            continue
+
+        if page_contain_featured(page, featured):
+            result.append(
+                f"{get_version_from_page(page)}.{get_minor_version(event_wishes_qr, get_version_from_page(page), featured)}"
+            )
+
+    result.sort(key=StrictVersion)
+    return result
+
+
+def get_next_banner_date(event_wishes_qr: QueryResponse, start_date: str) -> str:
+    result = [
+        get_banner_date(p)
+        for p in event_wishes_qr["query"]["pages"].values()
+        if is_page_banner(p) and get_banner_date(p) > start_date
+    ]
+
+    if len(result) > 0:
+        return result[0]
+    return ""
+
+
+def get_featured_dates(
+    event_wishes_qr: QueryResponse,
+    featured: str,
+) -> list[BannerDates]:
+    result: list[BannerDates] = []
+
+    page: Page
+    for page in event_wishes_qr["query"]["pages"].values():
+        if not is_page_banner(page):
+            continue
+
+        if page_contain_featured(page, featured):
+            result.append(
+                {
+                    "start": get_valid_date_or_blank(get_banner_date(page)),
+                    "end": get_valid_date_or_blank(
+                        get_next_banner_date(event_wishes_qr, get_banner_date(page))
+                    ),
+                }
+            )
+
+    def get_banner_start_date(b: BannerDates) -> str:
+        return b["start"]
+
+    result.sort(key=get_banner_start_date)
+    return result
+
+
+def get_featured_banner_history(
+    event_wishes_qr: QueryResponse,
+    featured_qs: QueryResponse,
+) -> list[BannerHistory]:
+    result: list[BannerHistory] = []
+    page: Page
+    for page in featured_qs["query"]["pages"].values():
+        result.append(
+            {
+                "name": page["title"],
+                "versions": get_featured_versions(event_wishes_qr, page["title"]),
+                "dates": get_featured_dates(event_wishes_qr, page["title"]),
+            }
+        )
+
+    return sorted(
+        [r for r in result if len(r["versions"]) > 0],
+        key=lambda f: f["versions"][0],
+    )
+
+
+def transform_data(
+    event_wishes_qr: QueryResponse,
+    five_star_characters_qr: QueryResponse,
+    four_star_characters_qr: QueryResponse,
+    five_star_weapons_qr: QueryResponse,
+    four_star_weapons_qr: QueryResponse,
+) -> BannerDataset:
+    return {
+        "five_star_characters": get_featured_banner_history(
+            event_wishes_qr,
+            five_star_characters_qr,
+        ),
+        "four_star_characters": get_featured_banner_history(
+            event_wishes_qr,
+            four_star_characters_qr,
+        ),
+        "five_star_weapons": get_featured_banner_history(
+            event_wishes_qr,
+            five_star_weapons_qr,
+        ),
+        "four_star_weapons": get_featured_banner_history(
+            event_wishes_qr,
+            four_star_weapons_qr,
+        ),
+    }

@@ -1,4 +1,4 @@
-from samsara.banners_new import BannerDataset
+from samsara.banners import BannerDataset
 
 ExpectedTransformedData: BannerDataset = {
     "five_star_characters": [
