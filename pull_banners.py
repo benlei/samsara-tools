@@ -80,7 +80,7 @@ def main() -> None:
 
 def write_images(args: argparse.Namespace, data: BannerDataset):
     def get_generic_feature_type(feature_type: str) -> str:
-        if feature_type.find("character") != -1:
+        if feature_type.lower().find("character") != -1:
             return "characters"
         return "weapons"
 

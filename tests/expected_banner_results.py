@@ -1,7 +1,7 @@
 from samsara.banners import BannerDataset
 
 ExpectedTransformedData: BannerDataset = {
-    "five_star_characters": [
+    "fiveStarCharacters": [
         {
             "name": "Venti",
             "versions": ["1.0.1", "1.4.1", "2.6.1", "3.1.1"],
@@ -223,7 +223,7 @@ ExpectedTransformedData: BannerDataset = {
         },
         {"name": "Baizhu", "versions": ["3.6.2"], "dates": [{"start": "", "end": ""}]},
     ],
-    "four_star_characters": [
+    "fourStarCharacters": [
         {
             "name": "Barbara",
             "versions": [
@@ -568,7 +568,7 @@ ExpectedTransformedData: BannerDataset = {
         },
         {"name": "Kaveh", "versions": ["3.6.2"], "dates": [{"start": "", "end": ""}]},
     ],
-    "five_star_weapons": [
+    "fiveStarWeapons": [
         {
             "name": "Amos' Bow",
             "versions": ["1.0.1", "1.2.2", "2.4.2", "3.0.2"],
@@ -860,7 +860,7 @@ ExpectedTransformedData: BannerDataset = {
             "dates": [{"start": "2023-03-01", "end": "2023-03-21"}],
         },
     ],
-    "four_star_weapons": [
+    "fourStarWeapons": [
         {
             "name": "The Stringless",
             "versions": [

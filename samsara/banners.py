@@ -231,19 +231,19 @@ def transform_data(
     four_star_weapons_qr: QueryResponse,
 ) -> BannerDataset:
     return {
-        "five_star_characters": get_featured_banner_history(
+        "fiveStarCharacters": get_featured_banner_history(
             event_wishes_qr,
             five_star_characters_qr,
         ),
-        "four_star_characters": get_featured_banner_history(
+        "fourStarCharacters": get_featured_banner_history(
             event_wishes_qr,
             four_star_characters_qr,
         ),
-        "five_star_weapons": get_featured_banner_history(
+        "fiveStarWeapons": get_featured_banner_history(
             event_wishes_qr,
             five_star_weapons_qr,
         ),
-        "four_star_weapons": get_featured_banner_history(
+        "fourStarWeapons": get_featured_banner_history(
             event_wishes_qr,
             four_star_weapons_qr,
         ),
