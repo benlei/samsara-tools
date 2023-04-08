@@ -9,8 +9,16 @@ import samsara.generate
 from samsara import fandom, banners
 from samsara.banners import BannerDataset, BannerHistory
 
-
-class Dumper(yaml.Dumper):
+# the default dumper formats it as:
+# foo:
+# - a
+# - b
+#
+# this dumper does:
+# foo:
+#   - a
+#   - b
+class IndentedPropertyDumper(yaml.Dumper):
     def increase_indent(self, flow=False, *args, **kwargs):
         return super().increase_indent(flow=flow, indentless=False)
 
@@ -98,7 +106,7 @@ def write_data(args: argparse.Namespace, data: BannerDataset):
         data,
         default_flow_style=False,
         sort_keys=False,
-        Dumper=Dumper,
+        Dumper=IndentedPropertyDumper,
     )
 
     if len(dump) < args.min_data_size:
