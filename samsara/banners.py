@@ -21,10 +21,10 @@ class BannerHistory(TypedDict):
 
 
 class BannerDataset(TypedDict):
-    five_star_characters: list[BannerHistory]
-    four_star_characters: list[BannerHistory]
-    five_star_weapons: list[BannerHistory]
-    four_star_weapons: list[BannerHistory]
+    fiveStarCharacters: list[BannerHistory]
+    fourStarCharacters: list[BannerHistory]
+    fiveStarWeapons: list[BannerHistory]
+    fourStarWeapons: list[BannerHistory]
 
 
 def get_valid_date_or_blank(date: str) -> str:
