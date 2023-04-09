@@ -54,10 +54,10 @@ ExpectedTransformedData: BannerDataset = {
             "name": "Ganyu",
             "versions": ["1.2.2", "2.4.2", "3.0.2", "3.6.2"],
             "dates": [
-                {"start": "", "end": ""},
                 {"start": "2021-01-12", "end": "2021-02-03"},
                 {"start": "2022-01-25", "end": "2022-02-16"},
                 {"start": "2022-09-09", "end": "2022-09-28"},
+                {"start": "", "end": ""},
             ],
         },
         {

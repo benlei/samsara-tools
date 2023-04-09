@@ -195,6 +195,10 @@ def get_featured_dates(
             )
 
     def get_banner_start_date(b: BannerDates) -> str:
+        # empty start dates should go to the end
+        if b["start"] == "":
+            return "999999999"
+
         return b["start"]
 
     result.sort(key=get_banner_start_date)
