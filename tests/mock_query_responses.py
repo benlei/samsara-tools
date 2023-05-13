@@ -2396,7 +2396,7 @@ MockEventWishesQueryResponse: QueryResponse = {
                     {"ns": 14, "title": "Category:Features Kaveh"},
                     {"ns": 14, "title": "Category:Features Unknown Character"},
                     {"ns": 14, "title": "Category:Immaculate Pulse"},
-                    {"ns": 14, "title": "Category:Released in Version 3.6"},
+                    # {"ns": 14, "title": "Category:Released in Version 3.6"},
                     {"ns": 14, "title": "Category:Upcoming Content"},
                     {"ns": 14, "title": "Category:Version"},
                     {"ns": 14, "title": "Category:Wish"},

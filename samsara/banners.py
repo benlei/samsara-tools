@@ -1,3 +1,5 @@
+import logging
+import re
 from datetime import datetime
 from distutils.version import StrictVersion
 from typing import TypedDict, TypeVar
@@ -36,12 +38,21 @@ def get_valid_date_or_blank(date: str) -> str:
 
 
 def get_version_from_page(p: Page) -> str:
+    def get_last_breadcrump() -> str:
+        return p["title"][p["title"].find("/") + 1 :]
+
+    def is_last_breadcrumb_a_version() -> bool:
+        return bool(re.match(r"^\d+\.\d+$", get_last_breadcrump()))
+
     versions = [
         c for c in p["categories"] if c["title"].startswith(CategoryVersionPrefix)
     ]
 
     if len(versions) != 1:
-        raise Exception(f"Expected 1 version result, found {len(versions)}")
+        if is_last_breadcrumb_a_version():
+            return get_last_breadcrump()
+
+        raise Exception(f"Could not determine version from page {p['title']}")
 
     return versions[0]["title"][len(CategoryVersionPrefix) :]
 
