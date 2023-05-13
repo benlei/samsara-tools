@@ -131,10 +131,6 @@ def get_featured_versions(
     event_wishes_qr: QueryResponse,
     featured: str,
 ) -> list[str]:
-    def add_version_to_list(l: list[str], version: str):
-        if version not in l:
-            l.append(version)
-
     result: list[str] = []
 
     page: Page
