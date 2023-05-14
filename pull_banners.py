@@ -66,7 +66,7 @@ def main() -> None:
 
     args: argparse.Namespace = get_parser().parse_args()
 
-    data = banners.transform_data(
+    data = banners.BannersParser().transform_data(
         fandom.get_event_wishes(),
         fandom.get_5_star_characters(),
         fandom.get_4_star_characters(),
