@@ -81,6 +81,7 @@ def get_4_star_weapons() -> QueryResponse:
 
 def download_character_image(output_path: str | Path, character_name: str, size: int):
     logging.info(f"downloading {character_name} icon to {output_path}")
+    # https://honkai-star-rail.fandom.com/index.php?title=Special:Redirect/file/Character%20Hook%20Icon.png
     r = requests.get(
         f"https://honkai-star-rail.fandom.com/index.php?title=Special:Redirect/file/Character {character_name} Icon.png&width={size}&height={size}",
         stream=True,
@@ -88,7 +89,7 @@ def download_character_image(output_path: str | Path, character_name: str, size:
 
     if r.status_code != 200:
         logging.warning(
-            f"Received status {r.status_code} trying to download weapon image {character_name}"
+            f"Received status {r.status_code} trying to download character image {character_name}"
         )
     else:
         with open(output_path, "wb") as f:
