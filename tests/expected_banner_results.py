@@ -155,11 +155,10 @@ ExpectedTransformedData: BannerDataset = {
         },
         {
             "name": "Yae Miko",
-            "versions": ["2.5.1", "3.2.2", "2023.1"],
+            "versions": ["2.5.1", "3.2.2"],
             "dates": [
                 {"start": "2022-02-16", "end": "2022-03-08"},
                 {"start": "2022-11-18", "end": "2022-12-07"},
-                {"start": "2023-05-24", "end": ""},
             ],
         },
         {
@@ -196,7 +195,7 @@ ExpectedTransformedData: BannerDataset = {
             "versions": ["3.1.2", "3.6.1"],
             "dates": [
                 {"start": "2022-10-14", "end": "2022-11-02"},
-                {"start": "2023-04-12", "end": "2023-05-24"},
+                {"start": "2023-04-12", "end": ""},
             ],
         },
         {
@@ -204,7 +203,7 @@ ExpectedTransformedData: BannerDataset = {
             "versions": ["3.2.1", "3.6.1"],
             "dates": [
                 {"start": "2022-11-02", "end": "2022-11-18"},
-                {"start": "2023-04-12", "end": "2023-05-24"},
+                {"start": "2023-04-12", "end": ""},
             ],
         },
         {

@@ -44,9 +44,6 @@ def get_version_from_page(p: Page) -> str:
     def is_last_breadcrumb_a_version() -> bool:
         return bool(re.match(r"^\d+\.\d+$", get_last_breadcrump()))
 
-    def generate_version_from_last_breadcrumb() -> str:
-        return get_last_breadcrump()[0:4]
-
     versions = [
         c for c in p["categories"] if c["title"].startswith(CategoryVersionPrefix)
     ]
@@ -55,10 +52,7 @@ def get_version_from_page(p: Page) -> str:
         if is_last_breadcrumb_a_version():
             return get_last_breadcrump()
 
-        logging.warning(
-            f"Could not determine version from page {p['title']}, setting to {generate_version_from_last_breadcrumb()}"
-        )
-        return generate_version_from_last_breadcrumb()
+        raise Exception(f"Could not determine version from page {p['title']}")
 
     return versions[0]["title"][len(CategoryVersionPrefix) :]
 
