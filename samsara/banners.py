@@ -1,4 +1,4 @@
-import logging
+import copy
 import re
 from datetime import datetime
 from distutils.version import StrictVersion
@@ -127,6 +127,24 @@ def append_unique(l: list[T], value: T):
         l.append(value)
 
 
+def filter_invalid_pages(
+    event_wishes_qr: QueryResponse,
+) -> QueryResponse:
+    result = copy.deepcopy(event_wishes_qr)
+    result["query"]["pages"] = {}
+
+    for page in event_wishes_qr["query"]["pages"].values():
+        if not is_page_banner(page):
+            continue
+        try:
+            get_version_from_page(page)
+            result["query"]["pages"][page["pageid"]] = page
+        except:
+            continue
+
+    return result
+
+
 def get_featured_versions(
     event_wishes_qr: QueryResponse,
     featured: str,
@@ -135,9 +153,6 @@ def get_featured_versions(
 
     page: Page
     for page in event_wishes_qr["query"]["pages"].values():
-        if not is_page_banner(page):
-            continue
-
         if page_contain_featured(page, featured):
             append_unique(
                 result,
@@ -185,9 +200,6 @@ def get_featured_dates(
 
     page: Page
     for page in event_wishes_qr["query"]["pages"].values():
-        if not is_page_banner(page):
-            continue
-
         if page_contain_featured(page, featured):
             append_unique(
                 result,
@@ -243,19 +255,19 @@ def transform_data(
 ) -> BannerDataset:
     return {
         "fiveStarCharacters": get_featured_banner_history(
-            event_wishes_qr,
+            filter_invalid_pages(event_wishes_qr),
             five_star_characters_qr,
         ),
         "fourStarCharacters": get_featured_banner_history(
-            event_wishes_qr,
+            filter_invalid_pages(event_wishes_qr),
             four_star_characters_qr,
         ),
         "fiveStarWeapons": get_featured_banner_history(
-            event_wishes_qr,
+            filter_invalid_pages(event_wishes_qr),
             five_star_weapons_qr,
         ),
         "fourStarWeapons": get_featured_banner_history(
-            event_wishes_qr,
+            filter_invalid_pages(event_wishes_qr),
             four_star_weapons_qr,
         ),
     }
