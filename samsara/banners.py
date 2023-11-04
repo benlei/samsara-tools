@@ -31,7 +31,7 @@ def get_valid_date_or_blank(date: str) -> str:
     try:
         datetime.strptime(date, "%Y-%m-%d")
         return date
-    except:
+    except BaseException:
         return ""
 
 
@@ -52,7 +52,7 @@ class BannersParser:
     def __init__(self) -> None:
         self.CategoryVersionPrefix = "Category:Released in Version "
         self.CategoryFeaturedPrefix = "Category:Features "
-        self.WeaponPagePrefix = "Epitome Invocation"
+        self.WeaponPagePrefix = r"Epitome Invocation"
 
     def get_version_from_page(self, p: Page) -> str:
         def get_last_breadcrump() -> str:
@@ -76,7 +76,8 @@ class BannersParser:
         return versions[0]["title"][len(self.CategoryVersionPrefix) :]
 
     def is_page_weapon(self, page: Page) -> bool:
-        return page["title"].startswith(self.WeaponPagePrefix)
+        return not not re.match(self.WeaponPagePrefix, page["title"])
+        # return page["title"].startswith(self.WeaponPagePrefix)
 
     def page_contain_featured(self, p: Page, featured: str) -> bool:
         return (
@@ -140,7 +141,7 @@ class BannersParser:
             try:
                 self.get_version_from_page(page)
                 result["query"]["pages"][page["pageid"]] = page
-            except:
+            except BaseException:
                 continue
 
         return result

@@ -17,6 +17,8 @@ from samsara.banners import BannerDataset, BannerHistory
 # foo:
 #   - a
 #   - b
+
+
 class IndentedPropertyDumper(yaml.Dumper):
     def increase_indent(self, flow=False, *args, **kwargs):
         return super().increase_indent(flow=flow, indentless=False)
