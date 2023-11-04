@@ -6,4 +6,4 @@ class BannersParser(banners.BannersParser):
         super.__init__(self)
         # self.CategoryVersionPrefix = "Category:Released in Version "
         # self.CategoryFeaturedPrefix = "Category:Features "
-        self.WeaponPagePrefix = "Brilliant Fixation"
+        self.WeaponPagePrefix = r"(Brilliant.Fixation|Bygone.Reminiscence)"

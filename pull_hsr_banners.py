@@ -17,6 +17,8 @@ from samsara.banners import BannerDataset, BannerHistory
 # foo:
 #   - a
 #   - b
+
+
 class IndentedPropertyDumper(yaml.Dumper):
     def increase_indent(self, flow=False, *args, **kwargs):
         return super().increase_indent(flow=flow, indentless=False)
@@ -80,8 +82,8 @@ def main() -> None:
 def write_images(args: argparse.Namespace, data: BannerDataset):
     def get_generic_feature_type(feature_type: str) -> str:
         if feature_type.lower().find("character") != -1:
-            return "characters"
-        return "weapons"
+            return "hsr-characters"
+        return "lightcones"
 
     image_path = pathlib.Path(args.output_image_dir)
     featured_type: str
@@ -94,7 +96,7 @@ def write_images(args: argparse.Namespace, data: BannerDataset):
             )
 
             if args.force or not path.exists():
-                if get_generic_feature_type(featured_type) == "characters":
+                if get_generic_feature_type(featured_type) == "hsr-characters":
                     hsr_fandom.download_character_image(path, bannerHistory["name"], 80)
                 else:
                     hsr_fandom.download_weapon_image(path, bannerHistory["name"], 80)
