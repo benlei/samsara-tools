@@ -98,8 +98,12 @@ class BannersParser:
         is_weapon: bool,
     ) -> list[Page]:
         def key_by_valid_date(p: Page) -> str:
-            return get_valid_date_or_blank(get_banner_date(p)) if get_valid_date_or_blank(get_banner_date(p)) != '' else '9999-99-99'
-        
+            return (
+                get_valid_date_or_blank(get_banner_date(p))
+                if get_valid_date_or_blank(get_banner_date(p)) != ""
+                else "9999-99-99"
+            )
+
         return sorted(
             [
                 p
@@ -158,7 +162,7 @@ class BannersParser:
 
         page: Page
         for page in event_wishes_qr["query"]["pages"].values():
-            if self.page_contain_featured(page, featured):                    
+            if self.page_contain_featured(page, featured):
                 append_unique(
                     result,
                     self.get_version_from_page(page)
@@ -216,7 +220,9 @@ class BannersParser:
                                 get_banner_date(page),
                                 self.is_page_weapon(page),
                             )
-                        ) if get_valid_date_or_blank(get_banner_date(page)) != '' else '',
+                        )
+                        if get_valid_date_or_blank(get_banner_date(page)) != ""
+                        else "",
                     },
                 )
 
