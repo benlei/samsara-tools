@@ -3,10 +3,14 @@ import re
 from datetime import datetime
 from distutils.version import StrictVersion
 from typing import TypedDict, TypeVar
+import logging
 
+from samsara import fandom
 from samsara.fandom import QueryResponse, Page
 
 T = TypeVar("T")
+
+logger = logging.getLogger(__name__)
 
 
 class BannerDates(TypedDict):
@@ -47,12 +51,27 @@ def append_unique(l: list[T], value: T):
     if value not in l:
         l.append(value)
 
-
+pagecache = {}
 class BannersParser:
     def __init__(self) -> None:
         self.CategoryVersionPrefix = "Category:Released in Version "
         self.CategoryFeaturedPrefix = "Category:Features "
         self.WeaponPagePrefix = r"Epitome Invocation"
+        self.ChangeHistoryRegex = re.compile(r"\{\{Change History\|(\d+\.\d+)\}\}")
+
+    def cached_fetch_page_content(self, page_id: int) -> str:
+        if page_id in pagecache:
+            return pagecache[page_id]
+        
+        try:
+            pagecache[page_id] = self.fetch_page_content(page_id)
+        except:
+            pagecache[page_id] = ""
+
+        return pagecache[page_id]
+    
+    def fetch_page_content(self, page_id: int) -> str:
+        return fandom.get_page_content(page_id)["query"]["pages"][0]["revisions"][0]["slots"]["main"]["content"]
 
     def get_version_from_page(self, p: Page) -> str:
         def get_last_breadcrump() -> str:
@@ -67,10 +86,17 @@ class BannersParser:
             if c["title"].startswith(self.CategoryVersionPrefix)
         ]
 
-        if len(versions) != 1:
-            if is_last_breadcrumb_a_version():
-                return get_last_breadcrump()
+        if len(versions) != 1 and is_last_breadcrumb_a_version():
+            return get_last_breadcrump()
 
+
+        if len(versions) == 0:
+            content = self.cached_fetch_page_content(p["pageid"])
+            match = self.ChangeHistoryRegex.search(content)
+            matched_version = match.group(1) if match else None
+            if matched_version:
+                return matched_version
+            
             raise Exception(f"Could not determine version from page {p['title']}")
 
         return versions[0]["title"][len(self.CategoryVersionPrefix) :]
@@ -148,7 +174,8 @@ class BannersParser:
             try:
                 self.get_version_from_page(page)
                 result["query"]["pages"][page["pageid"]] = page
-            except BaseException:
+            except BaseException as e:
+                logger.info(f"An error occurred: {e}")  # Log or print the error message
                 continue
 
         return result

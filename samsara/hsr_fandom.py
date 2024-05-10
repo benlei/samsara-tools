@@ -113,3 +113,18 @@ def download_weapon_image(output_path: str | Path, weapon_name: str, size: int):
         with open(output_path, "wb") as f:
             r.raw.decode_content = True
             shutil.copyfileobj(r.raw, f)
+
+def get_page_content(page_id: int) -> QueryResponse:
+    logging.info(f"fetching page content for {page_id}")
+    return query_all(
+        {
+            "action": "query",
+            "prop": "revisions",
+            "pageids": str(page_id),
+            "rvprop": "content",
+            "rvslots": "main",
+            "format": "json",
+            "formatversion": "2",
+        },
+        api_url="https://honkai-star-rail.fandom.com/api.php",
+    )
