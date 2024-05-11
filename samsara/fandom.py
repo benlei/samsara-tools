@@ -95,6 +95,21 @@ def get_event_wishes() -> QueryResponse:
     )
 
 
+def get_chronicled_wishes() -> QueryResponse:
+    logging.info("gathering all chronicled wishes")
+    return query_all(
+        {
+            "action": "query",
+            "generator": "categorymembers",
+            "gcmtitle": "Category:Chronicled_Wishes",
+            "prop": "categories",
+            "cllimit": "max",
+            "gcmlimit": "max",
+            "format": "json",
+        }
+    )
+
+
 def get_5_star_characters() -> QueryResponse:
     logging.info("gathering all 5 star characters")
     return query_all(
@@ -181,6 +196,7 @@ def download_weapon_image(output_path: str | Path, weapon_name: str, size: int):
             r.raw.decode_content = True
             shutil.copyfileobj(r.raw, f)
 
+
 def get_page_content(page_id: int) -> QueryResponse:
     logging.info(f"fetching page content for {page_id}")
     return query_all(
@@ -192,4 +208,5 @@ def get_page_content(page_id: int) -> QueryResponse:
             "rvslots": "main",
             "format": "json",
             "formatversion": "2",
-        })
+        }
+    )

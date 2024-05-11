@@ -2,12 +2,18 @@ import argparse
 import logging
 import pathlib
 
+from mergedeep import Strategy, merge
 import yaml
 
 import samsara.fandom
 import samsara.generate
 from samsara import fandom, banners
-from samsara.banners import BannerDataset, BannerHistory
+from samsara.banners import (
+    BannerDataset,
+    BannerHistory,
+    coerce_chronicled_to_char_banner,
+    coerce_chronicled_to_weap_banner,
+)
 
 # the default dumper formats it as:
 # foo:
@@ -68,11 +74,27 @@ def main() -> None:
 
     args: argparse.Namespace = get_parser().parse_args()
 
+    five_chars = fandom.get_5_star_characters()
+    five_weaps = fandom.get_5_star_weapons()
+    event_wishes = fandom.get_event_wishes()
+    chronicled_wishes = fandom.get_chronicled_wishes()
+
+    merge(
+        event_wishes,
+        coerce_chronicled_to_char_banner(chronicled_wishes, five_chars),
+        strategy=Strategy.ADDITIVE,
+    )
+    merge(
+        event_wishes,
+        coerce_chronicled_to_weap_banner(chronicled_wishes, five_weaps),
+        strategy=Strategy.ADDITIVE,
+    )
+
     data = banners.BannersParser().transform_data(
-        fandom.get_event_wishes(),
-        fandom.get_5_star_characters(),
+        event_wishes,
+        five_chars,
         fandom.get_4_star_characters(),
-        fandom.get_5_star_weapons(),
+        five_weaps,
         fandom.get_4_star_weapons(),
     )
 

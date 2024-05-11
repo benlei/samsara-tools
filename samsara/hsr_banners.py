@@ -9,5 +9,6 @@ class BannersParser(banners.BannersParser):
         self.WeaponPagePrefix = r"(Brilliant.Fixation|Bygone.Reminiscence)"
 
     def fetch_page_content(self, page_id: int) -> str:
-        return hsr_fandom.get_page_content(page_id)["query"]["pages"][0]["revisions"][0]["slots"]["main"]["content"]
-    
+        return hsr_fandom.get_page_content(page_id)["query"]["pages"][0]["revisions"][
+            0
+        ]["slots"]["main"]["content"]

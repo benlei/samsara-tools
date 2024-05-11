@@ -9,7 +9,8 @@ from tests.mock_query_responses import (
     MockFiveStarWeaponQueryResponse,
 )
 
-@mock.patch('samsara.fandom.get_page_content', return_value={})
+
+@mock.patch("samsara.fandom.get_page_content", return_value={})
 def test_transform_data(get_page_content_mock):
     assert ExpectedTransformedData == BannersParser().transform_data(
         MockEventWishesQueryResponse,

@@ -51,7 +51,10 @@ def append_unique(l: list[T], value: T):
     if value not in l:
         l.append(value)
 
+
 pagecache = {}
+
+
 class BannersParser:
     def __init__(self) -> None:
         self.CategoryVersionPrefix = "Category:Released in Version "
@@ -62,16 +65,18 @@ class BannersParser:
     def cached_fetch_page_content(self, page_id: int) -> str:
         if page_id in pagecache:
             return pagecache[page_id]
-        
+
         try:
             pagecache[page_id] = self.fetch_page_content(page_id)
-        except:
+        except BaseException:
             pagecache[page_id] = ""
 
         return pagecache[page_id]
-    
+
     def fetch_page_content(self, page_id: int) -> str:
-        return fandom.get_page_content(page_id)["query"]["pages"][0]["revisions"][0]["slots"]["main"]["content"]
+        return fandom.get_page_content(page_id)["query"]["pages"][0]["revisions"][0][
+            "slots"
+        ]["main"]["content"]
 
     def get_version_from_page(self, p: Page) -> str:
         def get_last_breadcrump() -> str:
@@ -89,14 +94,13 @@ class BannersParser:
         if len(versions) != 1 and is_last_breadcrumb_a_version():
             return get_last_breadcrump()
 
-
         if len(versions) == 0:
             content = self.cached_fetch_page_content(p["pageid"])
             match = self.ChangeHistoryRegex.search(content)
             matched_version = match.group(1) if match else None
             if matched_version:
                 return matched_version
-            
+
             raise Exception(f"Could not determine version from page {p['title']}")
 
         return versions[0]["title"][len(self.CategoryVersionPrefix) :]
@@ -175,7 +179,8 @@ class BannersParser:
                 self.get_version_from_page(page)
                 result["query"]["pages"][page["pageid"]] = page
             except BaseException as e:
-                logger.info(f"An error occurred: {e}")  # Log or print the error message
+                # Log or print the error message
+                logger.info(f"An error occurred: {e}")
                 continue
 
         return result
@@ -313,3 +318,65 @@ class BannersParser:
                 four_star_weapons_qr,
             ),
         }
+
+
+def get_qr_page_titles(qr: QueryResponse, category: str) -> list[str]:
+    result = []
+    for page in qr["query"]["pages"].values():
+        result.append(page["title"])
+
+    return result
+
+
+def strip_chronicled_prefix(title: str) -> str:
+    return title[len("Category:Wish Pool Includes ") :]
+
+
+def coerce_chronicled_to_char_banner(
+    chronicled_qr: QueryResponse, char_qr: QueryResponse
+):
+    five_star_characters = get_qr_page_titles(char_qr, "Category:5-Star Characters")
+    result: QueryResponse = {"query": {"pages": {}}}
+
+    for page in chronicled_qr["query"]["pages"].values():
+        if not is_page_banner(page):
+            continue
+
+        result["query"]["pages"][page["pageid"]] = copy.deepcopy(page)
+        result["query"]["pages"][page["pageid"]]["categories"].extend(
+            [
+                {"title": "Category:Features " + strip_chronicled_prefix(c["title"])}
+                for c in page["categories"]
+                if strip_chronicled_prefix(c["title"]) in five_star_characters
+            ]
+        )
+
+    # logger.info(result)
+    return result
+
+
+def coerce_chronicled_to_weap_banner(
+    chronicled_qr: QueryResponse, char_qr: QueryResponse
+):
+    five_star_weapons = get_qr_page_titles(char_qr, "Category:5-Star Weapons")
+    result: QueryResponse = {"query": {"pages": {}}}
+
+    for page in chronicled_qr["query"]["pages"].values():
+        if not is_page_banner(page):
+            continue
+
+        # weap banner can be differentiated by negative page id...
+        result["query"]["pages"][-page["pageid"]] = copy.deepcopy(page)
+        result["query"]["pages"][-page["pageid"]]["pageid"] = -page["pageid"]
+        result["query"]["pages"][-page["pageid"]]["title"] = (
+            "Epitome Invocation/" + page["title"].split("/")[1]
+        )
+        result["query"]["pages"][-page["pageid"]]["categories"].extend(
+            [
+                {"title": "Category:Features " + strip_chronicled_prefix(c["title"])}
+                for c in page["categories"]
+                if strip_chronicled_prefix(c["title"]) in five_star_weapons
+            ]
+        )
+
+    return result
