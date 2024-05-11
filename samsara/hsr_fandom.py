@@ -114,6 +114,7 @@ def download_weapon_image(output_path: str | Path, weapon_name: str, size: int):
             r.raw.decode_content = True
             shutil.copyfileobj(r.raw, f)
 
+
 def get_page_content(page_id: int) -> QueryResponse:
     logging.info(f"fetching page content for {page_id}")
     return query_all(
