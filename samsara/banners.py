@@ -273,9 +273,18 @@ class BannersParser:
         event_wishes_qr: QueryResponse,
         featured_qs: QueryResponse,
     ) -> list[BannerHistory]:
+        def is_specialization(p: Page) -> bool:
+            return '/' in p['title']
+        
+        def convert_specialization_page_to_title(p: Page) -> str:
+            return p['title'].split('/')[0] + ' (' + p['title'].split('/')[-1] + ')'
+        
         result: list[BannerHistory] = []
         page: Page
         for page in featured_qs["query"]["pages"].values():
+            if is_specialization(page):
+                page['title'] = convert_specialization_page_to_title(page)
+            
             result.append(
                 {
                     "name": page["title"],

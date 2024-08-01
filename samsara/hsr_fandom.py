@@ -101,7 +101,7 @@ def download_weapon_image(output_path: str | Path, weapon_name: str, size: int):
     logging.info(f"downloading {weapon_name} icon to {output_path}")
 
     r = requests.get(
-        f"https://honkai-star-rail.fandom.com/index.php?title=Special:Redirect/file/Light Cone {weapon_name}.png&width={size}&height={size}",
+        f"https://honkai-star-rail.fandom.com/index.php?title=Special:Redirect/file/Light Cone {weapon_name} Icon.png&width={size}&height={size}",
         stream=True,
     )
 
