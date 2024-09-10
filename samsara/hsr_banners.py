@@ -12,3 +12,11 @@ class BannersParser(banners.BannersParser):
         return hsr_fandom.get_page_content(page_id)["query"]["pages"][0]["revisions"][
             0
         ]["slots"]["main"]["content"]
+    
+    def convert_specialization_page_to_title(self, page: str) -> str:
+        title = super().convert_specialization_page_to_title(page)
+        
+        if title == "Topaz & Numby":
+            return "Topaz and Numby"
+        
+        return title
