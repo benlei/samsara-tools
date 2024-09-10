@@ -268,22 +268,21 @@ class BannersParser:
         result.sort(key=get_banner_start_date)
         return result
 
+    def convert_specialization_page_to_title(self, p: Page) -> str:
+        if '/' in p['title']:
+            return p["title"].split("/")[0] + " (" + p["title"].split("/")[1] + ")"
+        else:
+            return p["title"]
+    
     def get_featured_banner_history(
         self,
         event_wishes_qr: QueryResponse,
         featured_qs: QueryResponse,
     ) -> list[BannerHistory]:
-        def is_specialization(p: Page) -> bool:
-            return '/' in p['title']
-        
-        def convert_specialization_page_to_title(p: Page) -> str:
-            return p['title'].split('/')[0] + ' (' + p['title'].split('/')[-1] + ')'
-        
         result: list[BannerHistory] = []
         page: Page
         for page in featured_qs["query"]["pages"].values():
-            if is_specialization(page):
-                page['title'] = convert_specialization_page_to_title(page)
+            page['title'] = self.convert_specialization_page_to_title(page)
             
             result.append(
                 {
