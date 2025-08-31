@@ -1,4 +1,4 @@
-# Samsara Banner Tools
+# Samsara Banner Tools (v2.0)
 
 A TypeScript GitHub Action for pulling banner data from Fandom wikis for Genshin Impact and Honkai Star Rail.
 
@@ -33,7 +33,7 @@ This action fetches banner information including:
 
 ```yaml
 - name: Pull Genshin Impact Banner Data
-  uses: benlei/samsara-tools@v1
+  uses: benlei/samsara-tools@v2.0
   with:
     game: 'gi'
     output: './data/gi-banners.yml'
@@ -46,7 +46,7 @@ This action fetches banner information including:
 
 ```yaml
 - name: Pull HSR Banner Data
-  uses: benlei/samsara-tools@v1
+  uses: benlei/samsara-tools@v2.0
   with:
     game: 'hsr'
     output: './data/hsr-banners.yml'
@@ -54,6 +54,12 @@ This action fetches banner information including:
     force: 'false'
     min-data-size: '500'
 ```
+
+## License
+
+This repository is licensed under the GNU General Public License version 2 (GPL-2.0).
+
+See the `LICENSE` file for the full license text.
 
 ## Data Format
 
@@ -103,11 +109,3 @@ npm run build
 ```bash
 npm test
 ```
-
-## Migration from Python
-
-This TypeScript action replaces the original Python scripts:
-- `pull_banners.py` → Use with `game: 'gi'`
-- `pull_hsr_banners.py` → Use with `game: 'hsr'`
-
-The output format and functionality remain the same, but the implementation is now optimized for GitHub Actions.
