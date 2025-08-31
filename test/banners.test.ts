@@ -1,4 +1,4 @@
-import { parseVersionWithLuna } from '../banners';
+import { parseVersionWithLuna } from '../src/banners';
 
 describe('parseVersionWithLuna', () => {
   test('should parse regular versions correctly', () => {

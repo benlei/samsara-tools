@@ -1,4 +1,4 @@
-import { BannerHistory, BannerDataset } from '../types';
+import { BannerHistory, BannerDataset } from '../src/types';
 
 describe('Types', () => {
   test('should create valid BannerHistory', () => {

@@ -35,5 +35,10 @@ async function run(): Promise<void> {
   }
 }
 
-// GitHub Actions entry point - run immediately
-run();
+// Export run function for testing
+export { run };
+
+// GitHub Actions entry point - run immediately when not in test environment
+if (process.env.NODE_ENV !== 'test') {
+  run();
+}
