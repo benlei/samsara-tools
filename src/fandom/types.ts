@@ -21,6 +21,18 @@ export interface BannerProcessingResult {
   imagesDownloaded: number;
 }
 
+export type DownloadCharacterImageFunction = (
+  outputPath: string,
+  characterName: string,
+  size?: number
+) => Promise<void>;
+
+export type DownloadWeaponImageFunction = (
+  outputPath: string,
+  weaponName: string,
+  size?: number
+) => Promise<void>;
+
 export interface Category {
   title: string;
 }

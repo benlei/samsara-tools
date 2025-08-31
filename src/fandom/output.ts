@@ -1,7 +1,7 @@
 import { writeFileSync, existsSync } from 'fs';
 import { resolve, join } from 'path';
 import { dump } from 'js-yaml';
-import { BannerDataset, BannerHistory } from './types';
+import { BannerDataset, BannerHistory, DownloadCharacterImageFunction, DownloadWeaponImageFunction } from './types';
 import { warning } from '@actions/core';
 
 export function generateFilename(name: string): string {
@@ -16,12 +16,8 @@ export async function writeImages(
   outputImageDir: string,
   force: boolean,
   isHSR: boolean = false,
-  downloadCharacterImage: (
-    outputPath: string,
-    characterName: string,
-    size?: number
-  ) => Promise<void>,
-  downloadWeaponImage: (outputPath: string, weaponName: string, size?: number) => Promise<void>
+  downloadCharacterImage: DownloadCharacterImageFunction,
+  downloadWeaponImage: DownloadWeaponImageFunction
 ): Promise<number> {
   let imagesDownloaded = 0;
 

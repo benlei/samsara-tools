@@ -33,8 +33,8 @@ describe('HSR module', () => {
     mockHsrFandom.getEventWishes.mockResolvedValue({ query: { pages: {} } } as any);
     mockHsrFandom.get5StarCharacters.mockResolvedValue({ query: { pages: {} } } as any);
     mockHsrFandom.get4StarCharacters.mockResolvedValue({ query: { pages: {} } } as any);
-    mockHsrFandom.get5StarWeapons.mockResolvedValue({ query: { pages: {} } } as any);
-    mockHsrFandom.get4StarWeapons.mockResolvedValue({ query: { pages: {} } } as any);
+    mockHsrFandom.get5StarLightCones.mockResolvedValue({ query: { pages: {} } } as any);
+    mockHsrFandom.get4StarLightCones.mockResolvedValue({ query: { pages: {} } } as any);
 
     // Mock output functions
     mockOutput.writeData.mockReturnValue(35000);
@@ -68,8 +68,8 @@ describe('HSR module', () => {
     expect(mockHsrFandom.getEventWishes).toHaveBeenCalled();
     expect(mockHsrFandom.get5StarCharacters).toHaveBeenCalled();
     expect(mockHsrFandom.get4StarCharacters).toHaveBeenCalled();
-    expect(mockHsrFandom.get5StarWeapons).toHaveBeenCalled();
-    expect(mockHsrFandom.get4StarWeapons).toHaveBeenCalled();
+    expect(mockHsrFandom.get5StarLightCones).toHaveBeenCalled();
+    expect(mockHsrFandom.get4StarLightCones).toHaveBeenCalled();
   });
 
   test('should use HSR banner parser', async () => {

@@ -47,7 +47,7 @@ export function parseVersionWithLuna(version: string): number[] {
       parts.push(0);
     }
     return parts.slice(0, 3);
-  } catch (error) {
+  } catch {
     // Fallback for any malformed versions
     return [999, 999, 999];
   }
