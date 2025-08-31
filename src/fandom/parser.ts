@@ -8,6 +8,7 @@ import {
   PageContentCache,
 } from './types';
 import { getPageContent } from './api';
+import { info, warning } from '@actions/core';
 
 export function parseVersionWithLuna(version: string): number[] {
   // Handle Luna versions
@@ -230,7 +231,7 @@ export class FandomParser {
           result.query!.pages![page.pageid] = page;
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error);
-          console.log(`Skipping page due to version error: ${page.title} - ${errorMessage}`);
+          info(`Skipping page due to version error: ${page.title} - ${errorMessage}`);
           continue;
         }
       }
@@ -257,7 +258,7 @@ export class FandomParser {
             appendUnique(result, fullVersion);
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
-            console.log(`Error getting version for ${page.title}: ${errorMessage}`);
+            info(`Error getting version for ${page.title}: ${errorMessage}`);
             continue;
           }
         }
@@ -374,8 +375,8 @@ export class FandomParser {
         });
 
         if (result[result.length - 1].versions.length !== result[result.length - 1].dates.length) {
-          console.log(
-            `WARNING: Version and dates length mismatch for ${modifiedPage.title} - versions: ${JSON.stringify(versions)}, dates: ${JSON.stringify(dates)}`
+          warning(
+            `Version and dates length mismatch for ${modifiedPage.title} - versions: ${JSON.stringify(versions)}, dates: ${JSON.stringify(dates)}`
           );
           // throw new Error(`Version and dates length mismatch for ${modifiedPage.title}`);
         }

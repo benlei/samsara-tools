@@ -1,6 +1,7 @@
 import axios from 'axios';
 import merge from 'deepmerge';
 import { QueryResponse, PageContent, MediaWikiApiParams } from './types';
+import { warning } from '@actions/core';
 
 const MAX_CONTINUES = 100;
 
@@ -21,7 +22,7 @@ export async function queryAll(
     }
 
     if (data.warnings) {
-      console.log('API Warnings:', data.warnings);
+      warning(`API Warnings: ${JSON.stringify(data.warnings)}`);
     }
 
     // Use deepmerge to match Python's mergedeep Strategy.ADDITIVE

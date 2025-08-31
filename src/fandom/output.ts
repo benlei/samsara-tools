@@ -1,7 +1,8 @@
-import { existsSync, writeFileSync } from 'fs';
+import { writeFileSync, existsSync } from 'fs';
 import { resolve, join } from 'path';
 import { dump } from 'js-yaml';
 import { BannerDataset, BannerHistory } from './types';
+import { warning } from '@actions/core';
 
 export function generateFilename(name: string): string {
   // Use the same logic as Python generate.filename
@@ -58,7 +59,7 @@ export async function writeImages(
         await new Promise<void>((resolveTimer) => setTimeout(resolveTimer, 500));
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        console.warn(`Failed to download image for ${bannerHistory.name}: ${errorMessage}`);
+        warning(`Failed to download image for ${bannerHistory.name}: ${errorMessage}`);
       }
     }
   }

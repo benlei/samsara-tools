@@ -1,5 +1,6 @@
 import { QueryResponse } from '../fandom/types';
 import { queryAll } from '../fandom/api';
+import { info, warning } from '@actions/core';
 import axios from 'axios';
 import { existsSync, mkdirSync, createWriteStream } from 'fs';
 import { dirname } from 'path';
@@ -7,7 +8,7 @@ import { dirname } from 'path';
 const HSR_API_URL = 'https://honkai-star-rail.fandom.com/api.php';
 
 export async function getEventWishes(): Promise<QueryResponse> {
-  console.log('Gathering all HSR event wishes');
+  info('Gathering all HSR event wishes');
   return queryAll(
     {
       action: 'query',
@@ -23,7 +24,7 @@ export async function getEventWishes(): Promise<QueryResponse> {
 }
 
 export async function get5StarCharacters(): Promise<QueryResponse> {
-  console.log('Gathering all HSR 5 star characters');
+  info('Gathering all HSR 5 star characters');
   return queryAll(
     {
       action: 'query',
@@ -37,7 +38,7 @@ export async function get5StarCharacters(): Promise<QueryResponse> {
 }
 
 export async function get4StarCharacters(): Promise<QueryResponse> {
-  console.log('Gathering all HSR 4 star characters');
+  info('Gathering all HSR 4 star characters');
   return queryAll(
     {
       action: 'query',
@@ -50,8 +51,8 @@ export async function get4StarCharacters(): Promise<QueryResponse> {
   );
 }
 
-export async function get5StarWeapons(): Promise<QueryResponse> {
-  console.log('Gathering all HSR 5 star light cones');
+export async function get5StarLightCones(): Promise<QueryResponse> {
+  info('Gathering all HSR 5 star light cones');
   return queryAll(
     {
       action: 'query',
@@ -64,8 +65,8 @@ export async function get5StarWeapons(): Promise<QueryResponse> {
   );
 }
 
-export async function get4StarWeapons(): Promise<QueryResponse> {
-  console.log('Gathering all HSR 4 star light cones');
+export async function get4StarLightCones(): Promise<QueryResponse> {
+  info('Gathering all HSR 4 star light cones');
   return queryAll(
     {
       action: 'query',
@@ -83,7 +84,7 @@ export async function downloadCharacterImage(
   characterName: string,
   size: number = 80
 ): Promise<void> {
-  console.log(`Downloading ${characterName} icon to ${outputPath}`);
+  info(`Downloading ${characterName} icon to ${outputPath}`);
   const url = `https://honkai-star-rail.fandom.com/index.php?title=Special:Redirect/file/Character ${characterName} Icon.png&width=${size}&height=${size}`;
 
   try {
@@ -104,7 +105,7 @@ export async function downloadCharacterImage(
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.warn(`Failed to download HSR character image from ${url}: ${errorMessage}`);
+    warning(`Failed to download HSR character image from ${url}: ${errorMessage}`);
     throw error;
   }
 }
@@ -114,7 +115,7 @@ export async function downloadWeaponImage(
   weaponName: string,
   size: number = 80
 ): Promise<void> {
-  console.log(`Downloading ${weaponName} icon to ${outputPath}`);
+  info(`Downloading ${weaponName} icon to ${outputPath}`);
   const url = `https://honkai-star-rail.fandom.com/index.php?title=Special:Redirect/file/Light Cone ${weaponName} Icon.png&width=${size}&height=${size}`;
 
   try {
@@ -135,7 +136,7 @@ export async function downloadWeaponImage(
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.warn(`Failed to download HSR weapon image from ${url}: ${errorMessage}`);
+    warning(`Failed to download HSR weapon image from ${url}: ${errorMessage}`);
     throw error;
   }
 }

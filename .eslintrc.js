@@ -15,7 +15,6 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-explicit-any': 'warn',
     'github/no-then': 'off',
-    'no-console': 'warn', // Allow console statements for logging
     'camelcase': 'off', // Allow snake_case for API responses
     'i18n-text/no-en': 'off' // Allow English text in GitHub Actions
   },

@@ -3,12 +3,13 @@ import { queryAll } from '../fandom/api';
 import axios from 'axios';
 import { existsSync, mkdirSync, createWriteStream } from 'fs';
 import { dirname } from 'path';
+import { info, warning } from '@actions/core';
 
 const GI_API_URL = 'https://genshin-impact.fandom.com/api.php';
 
 // Genshin Impact specific functions
 export async function get5StarCharacters(): Promise<QueryResponse> {
-  console.log('Gathering all 5 star characters');
+  info('Gathering all 5 star characters');
   return queryAll(
     {
       action: 'query',
@@ -22,7 +23,7 @@ export async function get5StarCharacters(): Promise<QueryResponse> {
 }
 
 export async function get4StarCharacters(): Promise<QueryResponse> {
-  console.log('Gathering all 4 star characters');
+  info('Gathering all 4 star characters');
   return queryAll(
     {
       action: 'query',
@@ -36,7 +37,7 @@ export async function get4StarCharacters(): Promise<QueryResponse> {
 }
 
 export async function get5StarWeapons(): Promise<QueryResponse> {
-  console.log('Gathering all 5 star weapons');
+  info('Gathering all 5 star weapons');
   return queryAll(
     {
       action: 'query',
@@ -50,7 +51,7 @@ export async function get5StarWeapons(): Promise<QueryResponse> {
 }
 
 export async function get4StarWeapons(): Promise<QueryResponse> {
-  console.log('Gathering all 4 star weapons');
+  info('Gathering all 4 star weapons');
   return queryAll(
     {
       action: 'query',
@@ -64,7 +65,7 @@ export async function get4StarWeapons(): Promise<QueryResponse> {
 }
 
 export async function getEventWishes(): Promise<QueryResponse> {
-  console.log('Gathering all event wishes');
+  info('Gathering all event wishes');
   const result = await queryAll(
     {
       action: 'query',
@@ -82,7 +83,7 @@ export async function getEventWishes(): Promise<QueryResponse> {
 }
 
 export async function getChronicledWishes(): Promise<QueryResponse> {
-  console.log('Gathering all chronicled wishes');
+  info('Gathering all chronicled wishes');
   return queryAll(
     {
       action: 'query',
@@ -102,7 +103,7 @@ export async function downloadCharacterImage(
   characterName: string,
   size: number = 80
 ): Promise<void> {
-  console.log(`Downloading ${characterName} icon to ${outputPath}`);
+  info(`Downloading ${characterName} icon to ${outputPath}`);
 
   // Use Fandom's redirect system like the Python version
   const url = `https://genshin-impact.fandom.com/index.php?title=Special:Redirect/file/${characterName} Icon.png&width=${size}&height=${size}`;
@@ -116,7 +117,7 @@ export async function downloadCharacterImage(
   });
 
   if (response.status !== 200) {
-    console.warn(`Received status ${response.status} trying to download image from ${url}`);
+    warning(`Received status ${response.status} trying to download image from ${url}`);
     throw new Error(`HTTP ${response.status}`);
   }
 
@@ -140,7 +141,7 @@ export async function downloadWeaponImage(
   weaponName: string,
   size: number = 80
 ): Promise<void> {
-  console.log(`Downloading ${weaponName} icon to ${outputPath}`);
+  info(`Downloading ${weaponName} icon to ${outputPath}`);
 
   // Use Fandom's redirect system like the Python version
   const url = `https://genshin-impact.fandom.com/index.php?title=Special:Redirect/file/Weapon ${weaponName}.png&width=${size}&height=${size}`;
@@ -154,7 +155,7 @@ export async function downloadWeaponImage(
   });
 
   if (response.status !== 200) {
-    console.warn(`Received status ${response.status} trying to download image from ${url}`);
+    warning(`Received status ${response.status} trying to download image from ${url}`);
     throw new Error(`HTTP ${response.status}`);
   }
 

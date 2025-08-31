@@ -5,8 +5,8 @@ import {
   getEventWishes,
   get5StarCharacters,
   get4StarCharacters,
-  get5StarWeapons,
-  get4StarWeapons,
+  get5StarLightCones,
+  get4StarLightCones,
   downloadCharacterImage,
   downloadWeaponImage,
 } from './fandom-api';
@@ -26,8 +26,8 @@ export async function pullHSRBanners(
     await getEventWishes(),
     await get5StarCharacters(),
     await get4StarCharacters(),
-    await get5StarWeapons(),
-    await get4StarWeapons()
+    await get5StarLightCones(),
+    await get4StarLightCones()
   );
 
   const dataSize = writeData(data, outputPath, minDataSize);

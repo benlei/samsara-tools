@@ -9,6 +9,14 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        game:
+          - id: 'gi'
+            min-data-size: '70000'
+          - id: 'hsr'
+            min-data-size: '2500'
     steps:
     - uses: actions/checkout@v4
     
@@ -30,23 +38,14 @@ jobs:
     - name: Create test output directory
       run: mkdir -p ./test-output/images
     
-    - name: Test Genshin Impact banner pull
+    - name: Test ${{ matrix.game.id }} banner pull
       uses: ./
       with:
-        game: 'gi'
-        output: './test-output/gi-banners.yml'
+        game: ${{ matrix.game.id }}
+        output: './test-output/${{ matrix.game.id }}-banners.yml'
         output-image-dir: './test-output/images'
         force: 'false'
-        min-data-size: '60000'
-    
-    - name: Test HSR banner pull
-      uses: ./
-      with:
-        game: 'hsr'
-        output: './test-output/hsr-banners.yml'
-        output-image-dir: './test-output/images'
-        force: 'false'
-        min-data-size: '2000'
+        min-data-size: ${{ matrix.game.min-data-size }}
 
   build:
     runs-on: ubuntu-latest
