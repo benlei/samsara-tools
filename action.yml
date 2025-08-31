@@ -1,0 +1,41 @@
+name: 'Samsara Banner Tools'
+description: 'Pull banner data from Fandom for Genshin Impact and Honkai Star Rail'
+author: 'Benjamin Lei'
+
+inputs:
+  game:
+    description: 'Game to process: "gi" for Genshin Impact, "hsr" for Honkai Star Rail'
+    required: true
+    default: 'gi'
+  output:
+    description: 'The location to output the YAML data'
+    required: true
+  output-image-dir:
+    description: 'The directory to output images'
+    required: true
+  force:
+    description: 'Force replace all images with newer ones'
+    required: false
+    default: 'false'
+  skip-images:
+    description: 'Skip downloading images (useful for testing YAML output only)'
+    required: false
+    default: 'false'
+  min-data-size:
+    description: 'Minimum data size to expect (in bytes)'
+    required: false
+    default: '40000'
+
+outputs:
+  data-size:
+    description: 'Size of the generated data file'
+  images-downloaded:
+    description: 'Number of images downloaded'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
+
+branding:
+  icon: 'download'
+  color: 'blue'

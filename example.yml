@@ -1,0 +1,75 @@
+name: Update Banner Data Example
+
+on:
+  schedule:
+    - cron: '0 12 * * *'  # Run daily at noon UTC
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  update-genshin-banners:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Create output directories
+      run: |
+        mkdir -p data/genshin
+        mkdir -p images/genshin
+    
+    - name: Pull Genshin Impact Banner Data
+      uses: ./
+      id: gi-banners
+      with:
+        game: 'gi'
+        output: './data/genshin/banners.yml'
+        output-image-dir: './images/genshin'
+        force: 'false'
+        min-data-size: '40000'
+    
+    - name: Display GI results
+      run: |
+        echo "Genshin Impact data size: ${{ steps.gi-banners.outputs.data-size }} bytes"
+        echo "Images downloaded: ${{ steps.gi-banners.outputs.images-downloaded }}"
+    
+    - name: Upload GI artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: genshin-banner-data
+        path: |
+          data/genshin/
+          images/genshin/
+
+  update-hsr-banners:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Create output directories
+      run: |
+        mkdir -p data/hsr
+        mkdir -p images/hsr
+    
+    - name: Pull HSR Banner Data
+      uses: ./
+      id: hsr-banners
+      with:
+        game: 'hsr'
+        output: './data/hsr/banners.yml'
+        output-image-dir: './images/hsr'
+        force: 'false'
+        min-data-size: '500'
+    
+    - name: Display HSR results
+      run: |
+        echo "HSR data size: ${{ steps.hsr-banners.outputs.data-size }} bytes"
+        echo "Images downloaded: ${{ steps.hsr-banners.outputs.images-downloaded }}"
+    
+    - name: Upload HSR artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: hsr-banner-data
+        path: |
+          data/hsr/
+          images/hsr/

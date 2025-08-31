@@ -1,0 +1,76 @@
+name: Test Action
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        game:
+          - id: 'gi'
+            min-data-size: '70000'
+          - id: 'hsr'
+            min-data-size: '2500'
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm install
+    
+    - name: Run tests
+      run: npm test
+    
+    - name: Build action
+      run: npm run build
+    
+    - name: Create test output directory
+      run: mkdir -p ./test-output/images
+    
+    - name: Test ${{ matrix.game.id }} banner pull
+      uses: ./
+      with:
+        game: ${{ matrix.game.id }}
+        output: './test-output/${{ matrix.game.id }}-banners.yml'
+        output-image-dir: './test-output/images'
+        force: 'false'
+        min-data-size: ${{ matrix.game.min-data-size }}
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm install
+    
+    - name: Lint
+      run: npm run lint
+    
+    - name: Build
+      run: npm run build
+    
+    - name: Check if build is up to date
+      run: |
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "Build is not up to date. Please run 'npm run build' and commit the changes."
+          git status
+          exit 1
+        fi

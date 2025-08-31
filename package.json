@@ -1,0 +1,55 @@
+{
+  "name": "samsara-tools",
+  "version": "1.0.0",
+  "description": "TypeScript GitHub Action for pulling banner data from Fandom",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc && ncc build lib/index.js -o dist --source-map --license licenses.txt",
+    "package": "npm run build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "lint": "eslint src/**/*.ts",
+    "format": "prettier --write src/**/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benlei/samsara-tools.git"
+  },
+  "keywords": [
+    "actions",
+    "genshin-impact",
+    "honkai-star-rail",
+    "fandom",
+    "banners"
+  ],
+  "author": "Benjamin Lei",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.10.1",
+    "@actions/github": "^6.0.0",
+    "axios": "^1.6.0",
+    "deepmerge": "^4.3.1",
+    "is-plain-object": "^5.0.0",
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.12.0",
+    "@types/js-yaml": "^4.0.9",
+    "@types/merge-deep": "^3.0.3",
+    "@types/node": "^22.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.8.0",
+    "@typescript-eslint/parser": "^8.8.0",
+    "@vercel/ncc": "^0.38.1",
+    "@vitest/ui": "^3.2.4",
+    "eslint": "^9.12.0",
+    "eslint-plugin-github": "^5.0.2",
+    "eslint-plugin-jest": "^28.8.3",
+    "prettier": "^3.3.0",
+    "typescript": "^5.6.0",
+    "vitest": "^3.2.4"
+  },
+  "overrides": {
+    "glob": "^10.0.0"
+  }
+}

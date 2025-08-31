@@ -53,6 +53,12 @@ def get_parser() -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
+        "--skip-images",
+        action="store_true",
+        help="Skip downloading images (useful for testing YAML output only)",
+    )
+
+    parser.add_argument(
         "--min-data-size",
         action="store",
         type=int,
@@ -77,7 +83,8 @@ def main() -> None:
     )
 
     write_data(args, data)
-    write_images(args, data)
+    if not args.skip_images:
+        write_images(args, data)
 
 
 def write_images(args: argparse.Namespace, data: BannerDataset):
