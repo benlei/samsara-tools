@@ -27,6 +27,9 @@ jobs:
     - name: Build action
       run: npm run build
     
+    - name: Create test output directory
+      run: mkdir -p ./test-output/images
+    
     - name: Test Genshin Impact banner pull
       uses: ./
       with:

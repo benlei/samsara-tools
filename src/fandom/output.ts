@@ -1,21 +1,25 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import * as yaml from 'js-yaml';
+import { existsSync, writeFileSync } from 'fs';
+import { resolve, join } from 'path';
+import { dump } from 'js-yaml';
 import { BannerDataset, BannerHistory } from './types';
 
 export function generateFilename(name: string): string {
   // Use the same logic as Python generate.filename
   let result = name.replace(/\s/g, '-'); // Replace spaces with hyphens
-  result = result.replace(/[^a-zA-Z0-9\-]/g, ''); // Remove special characters except hyphens
+  result = result.replace(/[^a-zA-Z0-9-]/g, ''); // Remove special characters except hyphens
   return result.replace(/--+/g, '-'); // Replace multiple consecutive hyphens with single hyphen
 }
 
 export async function writeImages(
-  data: BannerDataset, 
-  outputImageDir: string, 
-  force: boolean, 
+  data: BannerDataset,
+  outputImageDir: string,
+  force: boolean,
   isHSR: boolean = false,
-  downloadCharacterImage: (outputPath: string, characterName: string, size?: number) => Promise<void>,
+  downloadCharacterImage: (
+    outputPath: string,
+    characterName: string,
+    size?: number
+  ) => Promise<void>,
   downloadWeaponImage: (outputPath: string, weaponName: string, size?: number) => Promise<void>
 ): Promise<number> {
   let imagesDownloaded = 0;
@@ -27,21 +31,21 @@ export async function writeImages(
     return isHSR ? 'lightcones' : 'weapons';
   }
 
-  const imagePath = path.resolve(outputImageDir);
+  const imagePath = resolve(outputImageDir);
 
   for (const [featuredType, bannerHistoryList] of Object.entries(data)) {
     for (const bannerHistory of bannerHistoryList as BannerHistory[]) {
       const featureDir = getGenericFeatureType(featuredType);
       const filename = `${generateFilename(bannerHistory.name)}.png`;
-      const fullPath = path.join(imagePath, featureDir, filename);
+      const fullPath = join(imagePath, featureDir, filename);
 
       const isCharacter = featureDir.includes('character');
-      
+
       // Skip if file exists and force is false
-      if (!force && fs.existsSync(fullPath)) {
+      if (!force && existsSync(fullPath)) {
         continue;
       }
-      
+
       try {
         if (isCharacter) {
           await downloadCharacterImage(fullPath, bannerHistory.name, 80);
@@ -49,9 +53,9 @@ export async function writeImages(
           await downloadWeaponImage(fullPath, bannerHistory.name, 80);
         }
         imagesDownloaded++;
-        
+
         // Sleep 0.5 seconds between downloads
-        await new Promise<void>(resolve => setTimeout(resolve, 500));
+        await new Promise<void>((resolveTimer) => setTimeout(resolveTimer, 500));
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         console.warn(`Failed to download image for ${bannerHistory.name}: ${errorMessage}`);
@@ -63,16 +67,16 @@ export async function writeImages(
 }
 
 export function writeData(data: BannerDataset, outputPath: string, minDataSize: number): number {
-  const yamlData = yaml.dump(data, {
+  const yamlData = dump(data, {
     flowLevel: -1,
     sortKeys: false,
-    lineWidth: -1
+    lineWidth: -1,
   });
 
   if (yamlData.length < minDataSize) {
     throw new Error(`Banner data was under ${minDataSize} (was ${yamlData.length}) -- aborting!`);
   }
 
-  fs.writeFileSync(outputPath, yamlData, 'utf8');
+  writeFileSync(outputPath, yamlData, 'utf8');
   return yamlData.length;
 }

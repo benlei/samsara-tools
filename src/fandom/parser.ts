@@ -1,4 +1,12 @@
-import { QueryResponse, Page, BannerDataset, BannerHistory, BannerDates, PageContent, RomanNumeralMap, PageContentCache } from './types';
+import {
+  QueryResponse,
+  Page,
+  BannerDataset,
+  BannerHistory,
+  BannerDates,
+  RomanNumeralMap,
+  PageContentCache,
+} from './types';
 import { getPageContent } from './api';
 
 export function parseVersionWithLuna(version: string): number[] {
@@ -7,27 +15,33 @@ export function parseVersionWithLuna(version: string): number[] {
   if (lunaMatch) {
     const romanNumeral = lunaMatch[1];
     const romanToInt: RomanNumeralMap = {
-      'I': 1, 'II': 2, 'III': 3, 'IV': 4, 'V': 5, 
-      'VI': 6, 'VII': 7, 'VIII': 8
+      I: 1,
+      II: 2,
+      III: 3,
+      IV: 4,
+      V: 5,
+      VI: 6,
+      VII: 7,
+      VIII: 8,
     };
     const lunaNumber = romanToInt[romanNumeral] || 1;
     // Treat Luna I as 5.9, Luna II as 5.10, etc.
     const syntheticVersion = `5.${8 + lunaNumber}`;
     return syntheticVersion.split('.').map(Number).concat([0]);
   }
-  
+
   // Handle regular versions
   try {
-    const parts = version.split('.').map(x => {
+    const parts = version.split('.').map((x) => {
       const num = parseInt(x, 10);
       return isNaN(num) ? 999 : num;
     });
-    
+
     // Check if any part is invalid
-    if (parts.some(p => p === 999)) {
+    if (parts.some((p) => p === 999)) {
       return [999, 999, 999];
     }
-    
+
     while (parts.length < 3) {
       parts.push(0);
     }
@@ -78,7 +92,10 @@ export class FandomParser {
   protected ChangeHistoryRegex = /\{\{Change History\|(\d+\.\d+)\}\}/;
   protected apiUrl: string;
 
-  constructor(apiUrl: string = 'https://genshin-impact.fandom.com/api.php', weaponPagePrefix: RegExp = /Epitome Invocation/) {
+  constructor(
+    apiUrl: string = 'https://genshin-impact.fandom.com/api.php',
+    weaponPagePrefix: RegExp = /Epitome Invocation/
+  ) {
     this.apiUrl = apiUrl;
     this.WeaponPagePrefix = weaponPagePrefix;
   }
@@ -116,9 +133,7 @@ export class FandomParser {
       throw new Error(`Page has no categories: ${page.title}`);
     }
 
-    const versions = page.categories.filter((c) =>
-      c.title.startsWith(this.CategoryVersionPrefix)
-    );
+    const versions = page.categories.filter((c) => c.title.startsWith(this.CategoryVersionPrefix));
 
     if (versions.length !== 1 && isLastBreadcrumbAVersion()) {
       return getLastBreadcrumb();
@@ -147,10 +162,8 @@ export class FandomParser {
     if (!page.categories || !Array.isArray(page.categories)) {
       return false;
     }
-    
-    return page.categories.some(c => 
-      c.title === `${this.CategoryFeaturedPrefix}${featured}`
-    );
+
+    return page.categories.some((c) => c.title === `${this.CategoryFeaturedPrefix}${featured}`);
   }
 
   async getPagesOfVersion(
@@ -166,9 +179,11 @@ export class FandomParser {
     const pages: Page[] = [];
     if (eventWishesQr.query?.pages) {
       for (const page of Object.values(eventWishesQr.query.pages)) {
-        if (isPageBanner(page) && 
-            this.isPageWeapon(page) === isWeapon &&
-            await this.getVersionFromPage(page) === version) {
+        if (
+          isPageBanner(page) &&
+          this.isPageWeapon(page) === isWeapon &&
+          (await this.getVersionFromPage(page)) === version
+        ) {
           pages.push(page);
         }
       }
@@ -205,14 +220,11 @@ export class FandomParser {
     const result: QueryResponse = { query: { pages: {} } };
 
     if (eventWishesQr.query?.pages) {
-      let pageCount = 0;
       for (const page of Object.values(eventWishesQr.query.pages)) {
-        pageCount++;
-        
         if (!isPageBanner(page)) {
           continue;
         }
-        
+
         try {
           await this.getVersionFromPage(page);
           result.query!.pages![page.pageid] = page;
@@ -227,10 +239,7 @@ export class FandomParser {
     return result;
   }
 
-  async getFeaturedVersions(
-    eventWishesQr: QueryResponse,
-    featured: string
-  ): Promise<string[]> {
+  async getFeaturedVersions(eventWishesQr: QueryResponse, featured: string): Promise<string[]> {
     const result: string[] = [];
 
     if (eventWishesQr.query?.pages) {
@@ -268,18 +277,16 @@ export class FandomParser {
     return result;
   }
 
-  getNextBannerDate(
-    eventWishesQr: QueryResponse,
-    startDate: string,
-    isWeapon: boolean
-  ): string {
+  getNextBannerDate(eventWishesQr: QueryResponse, startDate: string, isWeapon: boolean): string {
     const dates: string[] = [];
 
     if (eventWishesQr.query?.pages) {
       for (const page of Object.values(eventWishesQr.query.pages)) {
-        if (isPageBanner(page) &&
-            this.isPageWeapon(page) === isWeapon &&
-            getBannerDate(page) > startDate) {
+        if (
+          isPageBanner(page) &&
+          this.isPageWeapon(page) === isWeapon &&
+          getBannerDate(page) > startDate
+        ) {
           dates.push(getBannerDate(page));
         }
       }
@@ -289,33 +296,35 @@ export class FandomParser {
     return dates.length > 0 ? dates[0] : '';
   }
 
-  async getFeaturedDates(
-    eventWishesQr: QueryResponse,
-    featured: string
-  ): Promise<BannerDates[]> {
+  async getFeaturedDates(eventWishesQr: QueryResponse, featured: string): Promise<BannerDates[]> {
     const result: BannerDates[] = [];
 
     if (eventWishesQr.query?.pages) {
       for (const page of Object.values(eventWishesQr.query.pages)) {
         if (this.pageContainFeatured(page, featured)) {
           const startDate = getValidDateOrBlank(getBannerDate(page));
-          const endDate = startDate !== '' 
-            ? getValidDateOrBlank(this.getNextBannerDate(
-                eventWishesQr,
-                getBannerDate(page),
-                this.isPageWeapon(page)
-              ))
-            : '';
+          const endDate =
+            startDate !== ''
+              ? getValidDateOrBlank(
+                  this.getNextBannerDate(
+                    eventWishesQr,
+                    getBannerDate(page),
+                    this.isPageWeapon(page)
+                  )
+                )
+              : '';
 
           const bannerDate: BannerDates = {
             start: startDate,
-            end: endDate
+            end: endDate,
           };
 
           // Use appendUnique equivalent for objects
-          if (!result.some(existing => 
-            existing.start === bannerDate.start && existing.end === bannerDate.end
-          )) {
+          if (
+            !result.some(
+              (existing) => existing.start === bannerDate.start && existing.end === bannerDate.end
+            )
+          ) {
             result.push(bannerDate);
           }
         }
@@ -347,8 +356,10 @@ export class FandomParser {
 
     if (featuredQs.query?.pages) {
       // Sort pages by title to match Python's alphabetical iteration order
-      const sortedPages = Object.values(featuredQs.query.pages).sort((a, b) => a.title.localeCompare(b.title));
-      
+      const sortedPages = Object.values(featuredQs.query.pages).sort((a, b) =>
+        a.title.localeCompare(b.title)
+      );
+
       for (const page of sortedPages) {
         const modifiedPage = { ...page };
         modifiedPage.title = this.convertSpecializationPageToTitle(modifiedPage);
@@ -359,18 +370,20 @@ export class FandomParser {
         result.push({
           name: modifiedPage.title,
           versions,
-          dates
+          dates,
         });
 
         if (result[result.length - 1].versions.length !== result[result.length - 1].dates.length) {
-          console.log(`WARNING: Version and dates length mismatch for ${modifiedPage.title} - versions: ${JSON.stringify(versions)}, dates: ${JSON.stringify(dates)}`);
+          console.log(
+            `WARNING: Version and dates length mismatch for ${modifiedPage.title} - versions: ${JSON.stringify(versions)}, dates: ${JSON.stringify(dates)}`
+          );
           // throw new Error(`Version and dates length mismatch for ${modifiedPage.title}`);
         }
       }
     }
 
     return result
-      .filter(r => r.versions.length > 0)
+      .filter((r) => r.versions.length > 0)
       .sort((a, b) => {
         const aParts = parseVersionWithLuna(a.versions[0]);
         const bParts = parseVersionWithLuna(b.versions[0]);
@@ -402,19 +415,13 @@ export class FandomParser {
         filteredEventWishes,
         fourStarCharactersQr
       ),
-      fiveStarWeapons: await this.getFeaturedBannerHistory(
-        filteredEventWishes,
-        fiveStarWeaponsQr
-      ),
-      fourStarWeapons: await this.getFeaturedBannerHistory(
-        filteredEventWishes,
-        fourStarWeaponsQr
-      )
+      fiveStarWeapons: await this.getFeaturedBannerHistory(filteredEventWishes, fiveStarWeaponsQr),
+      fourStarWeapons: await this.getFeaturedBannerHistory(filteredEventWishes, fourStarWeaponsQr),
     };
   }
 }
 
-export function getQrPageTitles(qr: QueryResponse, category: string): string[] {
+export function getQrPageTitles(qr: QueryResponse): string[] {
   const result: string[] = [];
   if (qr.query?.pages) {
     for (const page of Object.values(qr.query.pages)) {

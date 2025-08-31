@@ -1,6 +1,5 @@
-import { FandomParser } from '../fandom/parser';
+import { FandomParser, getQrPageTitles } from '../fandom/parser';
 import { Page, QueryResponse } from '../fandom/types';
-import { getQrPageTitles } from '../fandom/parser';
 
 export class BannersParser extends FandomParser {
   constructor() {
@@ -20,7 +19,7 @@ export function coerceChronicledToCharBanner(
   chronicledQr: QueryResponse,
   charQr: QueryResponse
 ): QueryResponse {
-  const fiveStarCharacters = getQrPageTitles(charQr, 'Category:5-Star Characters');
+  const fiveStarCharacters = getQrPageTitles(charQr);
   const result: QueryResponse = { query: { pages: {} } };
 
   if (chronicledQr.query?.pages) {
@@ -31,9 +30,9 @@ export function coerceChronicledToCharBanner(
 
       const newPage = JSON.parse(JSON.stringify(page));
       const additionalCategories = page.categories
-        .map(c => stripChronicledPrefix(c.title))
-        .filter(title => fiveStarCharacters.includes(title))
-        .map(title => ({ title: `Category:Features ${title}` }));
+        .map((c) => stripChronicledPrefix(c.title))
+        .filter((title) => fiveStarCharacters.includes(title))
+        .map((title) => ({ title: `Category:Features ${title}` }));
 
       newPage.categories.push(...additionalCategories);
       result.query!.pages![page.pageid] = newPage;
@@ -47,7 +46,7 @@ export function coerceChronicledToWeapBanner(
   chronicledQr: QueryResponse,
   weapQr: QueryResponse
 ): QueryResponse {
-  const fiveStarWeapons = getQrPageTitles(weapQr, 'Category:5-Star Weapons');
+  const fiveStarWeapons = getQrPageTitles(weapQr);
   const result: QueryResponse = { query: { pages: {} } };
 
   if (chronicledQr.query?.pages) {
@@ -59,11 +58,11 @@ export function coerceChronicledToWeapBanner(
       const newPage = JSON.parse(JSON.stringify(page));
       newPage.pageid = -page.pageid;
       newPage.title = `Epitome Invocation/${page.title.split('/')[1]}`;
-      
+
       const additionalCategories = page.categories
-        .map(c => stripChronicledPrefix(c.title))
-        .filter(title => fiveStarWeapons.includes(title))
-        .map(title => ({ title: `Category:Features ${title}` }));
+        .map((c) => stripChronicledPrefix(c.title))
+        .filter((title) => fiveStarWeapons.includes(title))
+        .map((title) => ({ title: `Category:Features ${title}` }));
 
       newPage.categories.push(...additionalCategories);
       result.query!.pages![-page.pageid] = newPage;

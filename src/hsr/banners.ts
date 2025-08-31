@@ -13,11 +13,11 @@ export class HSRBannersParser extends FandomParser {
 
   convertSpecializationPageToTitle(page: Page): string {
     const title = super.convertSpecializationPageToTitle(page);
-    
+
     if (title === 'Topaz & Numby') {
       return 'Topaz and Numby';
     }
-    
+
     return title;
   }
 }

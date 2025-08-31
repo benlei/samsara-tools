@@ -1,8 +1,21 @@
-import { BannersParser, coerceChronicledToCharBanner, coerceChronicledToWeapBanner } from './banners';
+import {
+  BannersParser,
+  coerceChronicledToCharBanner,
+  coerceChronicledToWeapBanner,
+} from './banners';
 import { writeData, writeImages } from '../fandom/output';
-import * as fandom from './fandom-api';
-import { BannerDataset, QueryResponse, BannerProcessingResult } from '../fandom/types';
-import * as core from '@actions/core';
+import {
+  get5StarCharacters,
+  get5StarWeapons,
+  get4StarCharacters,
+  get4StarWeapons,
+  getEventWishes,
+  getChronicledWishes,
+  downloadCharacterImage,
+  downloadWeaponImage,
+} from './fandom-api';
+import { QueryResponse, BannerProcessingResult } from '../fandom/types';
+import { info } from '@actions/core';
 
 export async function pullGenshinBanners(
   outputPath: string,
@@ -11,16 +24,17 @@ export async function pullGenshinBanners(
   skipImages: boolean,
   minDataSize: number
 ): Promise<BannerProcessingResult> {
-  core.info('Pulling Genshin Impact banner data...');
+  info('Pulling Genshin Impact banner data...');
 
-  const [fiveChars, fiveWeaps, fourChars, fourWeaps, eventWishes, chronicledWishes] = await Promise.all([
-    fandom.get5StarCharacters(),
-    fandom.get5StarWeapons(),
-    fandom.get4StarCharacters(),
-    fandom.get4StarWeapons(),
-    fandom.getEventWishes(),
-    fandom.getChronicledWishes()
-  ]);
+  const [fiveChars, fiveWeaps, fourChars, fourWeaps, eventWishes, chronicledWishes] =
+    await Promise.all([
+      get5StarCharacters(),
+      get5StarWeapons(),
+      get4StarCharacters(),
+      get4StarWeapons(),
+      getEventWishes(),
+      getChronicledWishes(),
+    ]);
 
   // Merge chronicled wishes into event wishes
   const mergedEventWishes: QueryResponse = {
@@ -28,29 +42,25 @@ export async function pullGenshinBanners(
       pages: {
         ...eventWishes.query?.pages,
         ...coerceChronicledToCharBanner(chronicledWishes, fiveChars).query?.pages,
-        ...coerceChronicledToWeapBanner(chronicledWishes, fiveWeaps).query?.pages
-      }
-    }
+        ...coerceChronicledToWeapBanner(chronicledWishes, fiveWeaps).query?.pages,
+      },
+    },
   };
 
   const parser = new BannersParser();
-  const data = await parser.parse(
-    mergedEventWishes,
-    fiveChars,
-    fourChars,
-    fiveWeaps,
-    fourWeaps
-  );
+  const data = await parser.parse(mergedEventWishes, fiveChars, fourChars, fiveWeaps, fourWeaps);
 
   const dataSize = writeData(data, outputPath, minDataSize);
-  const imagesDownloaded = skipImages ? 0 : await writeImages(
-    data, 
-    outputImageDir, 
-    force, 
-    false,
-    fandom.downloadCharacterImage,
-    fandom.downloadWeaponImage
-  );
+  const imagesDownloaded = skipImages
+    ? 0
+    : await writeImages(
+        data,
+        outputImageDir,
+        force,
+        false,
+        downloadCharacterImage,
+        downloadWeaponImage
+      );
 
   return { dataSize, imagesDownloaded };
 }
