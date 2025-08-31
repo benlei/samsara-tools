@@ -2,55 +2,37 @@ import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { pullGenshinBanners } from '../src/genshin/index';
 import * as fandom from '../src/genshin/fandom-api';
 import * as output from '../src/fandom/output';
-import { BannersParser } from '../src/genshin/banners';
+import * as banners from '../src/genshin/banners';
+import { QueryResponse } from '../src/fandom/types';
 
-// Mock the dependencies
-vi.mock('../src/genshin/fandom-api');
-vi.mock('../src/fandom/output');
-vi.mock('../src/genshin/banners');
-vi.mock('@actions/core');
-
-// Mock the banner utility functions
-vi.mock('../src/genshin/banners', async () => {
-  const actual = await vi.importActual('../src/genshin/banners');
-  return {
-    ...actual,
-    BannersParser: vi.fn(),
-    coerceChronicledToCharBanner: vi.fn().mockReturnValue({ query: { pages: {} } }),
-    coerceChronicledToWeapBanner: vi.fn().mockReturnValue({ query: { pages: {} } })
-  };
-});
-
-const mockFandom = vi.mocked(fandom);
-const mockOutput = vi.mocked(output);
-const mockBannersParser = vi.mocked(BannersParser, true);
+// Use spies instead of module-level mocks. We'll spy on specific functions below.
+// No vi.mock() calls here.
 
 describe('Genshin module', () => {
+  let parseSpy: any;
+
   beforeEach(() => {
     vi.clearAllMocks();
-    
-    // Mock the parser instance
-    const mockParserInstance = {
-      parse: vi.fn().mockResolvedValue({
-        fiveStarCharacters: [],
-        fourStarCharacters: [],
-        fiveStarWeapons: [],
-        fourStarWeapons: []
-      })
-    };
-    mockBannersParser.mockImplementation(() => mockParserInstance as any);
 
-    // Mock fandom API calls
-    mockFandom.get5StarCharacters.mockResolvedValue({ query: { pages: {} } } as any);
-    mockFandom.get5StarWeapons.mockResolvedValue({ query: { pages: {} } } as any);
-    mockFandom.getEventWishes.mockResolvedValue({ query: { pages: {} } } as any);
-    mockFandom.getChronicledWishes.mockResolvedValue({ query: { pages: {} } } as any);
-    mockFandom.get4StarCharacters.mockResolvedValue({ query: { pages: {} } } as any);
-    mockFandom.get4StarWeapons.mockResolvedValue({ query: { pages: {} } } as any);
+    // Spy on parser.parse to avoid replacing the constructor
+    parseSpy = vi.spyOn(banners.BannersParser.prototype, 'parse').mockResolvedValue({
+      fiveStarCharacters: [],
+      fourStarCharacters: [],
+      fiveStarWeapons: [],
+      fourStarWeapons: [],
+    });
 
-    // Mock output functions
-    mockOutput.writeData.mockReturnValue(50000);
-    mockOutput.writeImages.mockResolvedValue(10);
+  // Spy on fandom API functions. Use 'unknown' double-cast to satisfy QueryResponse typing for empty pages
+  vi.spyOn(fandom, 'get5StarCharacters').mockResolvedValue({ query: { pages: {} } } as unknown as QueryResponse);
+  vi.spyOn(fandom, 'get5StarWeapons').mockResolvedValue({ query: { pages: {} } } as unknown as QueryResponse);
+  vi.spyOn(fandom, 'getEventWishes').mockResolvedValue({ query: { pages: {} } } as unknown as QueryResponse);
+  vi.spyOn(fandom, 'getChronicledWishes').mockResolvedValue({ query: { pages: {} } } as unknown as QueryResponse);
+  vi.spyOn(fandom, 'get4StarCharacters').mockResolvedValue({ query: { pages: {} } } as unknown as QueryResponse);
+  vi.spyOn(fandom, 'get4StarWeapons').mockResolvedValue({ query: { pages: {} } } as unknown as QueryResponse);
+
+    // Spy on output functions
+    vi.spyOn(output, 'writeData').mockReturnValue(50000);
+    vi.spyOn(output, 'writeImages').mockResolvedValue(10 as unknown as number);
   });
 
   test('should pull Genshin banners successfully', async () => {
@@ -77,28 +59,28 @@ describe('Genshin module', () => {
       40000
     );
 
-    expect(mockFandom.get5StarCharacters).toHaveBeenCalled();
-    expect(mockFandom.get5StarWeapons).toHaveBeenCalled();
-    expect(mockFandom.getEventWishes).toHaveBeenCalled();
-    expect(mockFandom.getChronicledWishes).toHaveBeenCalled();
-    expect(mockFandom.get4StarCharacters).toHaveBeenCalled();
-    expect(mockFandom.get4StarWeapons).toHaveBeenCalled();
+  expect(fandom.get5StarCharacters).toHaveBeenCalled();
+  expect(fandom.get5StarWeapons).toHaveBeenCalled();
+  expect(fandom.getEventWishes).toHaveBeenCalled();
+  expect(fandom.getChronicledWishes).toHaveBeenCalled();
+  expect(fandom.get4StarCharacters).toHaveBeenCalled();
+  expect(fandom.get4StarWeapons).toHaveBeenCalled();
   });
 
   test('should merge chronicled wishes with event wishes', async () => {
-    const mockEventWishes = {
+    const mockEventWishes: QueryResponse = {
       query: {
-        pages: { '1': { title: 'Event Banner' } }
+        pages: { '1': { pageid: 1, title: 'Event Banner', categories: [] } }
       }
     };
-    const mockChronicledWishes = {
+    const mockChronicledWishes: QueryResponse = {
       query: {
-        pages: { '2': { title: 'Chronicled Banner' } }
+        pages: { '2': { pageid: 2, title: 'Chronicled Banner', categories: [] } }
       }
     };
 
-    mockFandom.getEventWishes.mockResolvedValue(mockEventWishes as any);
-    mockFandom.getChronicledWishes.mockResolvedValue(mockChronicledWishes as any);
+  vi.spyOn(fandom, 'getEventWishes').mockResolvedValue(mockEventWishes as QueryResponse);
+  vi.spyOn(fandom, 'getChronicledWishes').mockResolvedValue(mockChronicledWishes as QueryResponse);
 
     await pullGenshinBanners(
       '/test/output.yml',
@@ -108,12 +90,11 @@ describe('Genshin module', () => {
       40000
     );
 
-    const parserInstance = mockBannersParser.mock.results[0].value;
-    expect(parserInstance.parse).toHaveBeenCalledWith(
+  expect(parseSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         query: expect.objectContaining({
           pages: expect.objectContaining({
-            '1': { title: 'Event Banner' }
+            '1': { pageid: 1, title: 'Event Banner', categories: [] }
           })
         })
       }),
@@ -133,7 +114,7 @@ describe('Genshin module', () => {
       40000
     );
 
-    expect(mockOutput.writeImages).not.toHaveBeenCalled();
+  expect(output.writeImages).not.toHaveBeenCalled();
     expect(result.imagesDownloaded).toBe(0);
   });
 
@@ -146,7 +127,7 @@ describe('Genshin module', () => {
       40000
     );
 
-    expect(mockOutput.writeImages).toHaveBeenCalledWith(
+  expect(output.writeImages).toHaveBeenCalledWith(
       expect.any(Object),
       '/test/images',
       false,
@@ -165,7 +146,7 @@ describe('Genshin module', () => {
       40000
     );
 
-    expect(mockOutput.writeImages).toHaveBeenCalledWith(
+  expect(output.writeImages).toHaveBeenCalledWith(
       expect.any(Object),
       '/test/images',
       true, // force should be passed through
@@ -192,10 +173,98 @@ describe('Genshin module', () => {
       45000
     );
 
-    expect(mockOutput.writeData).toHaveBeenCalledWith(
+  expect(output.writeData).toHaveBeenCalledWith(
       expect.any(Object),
       '/test/output.yml',
       45000
     );
+  });
+
+  // Richer unit tests inspired by legacy Python tests but compact and deterministic
+  test('coerceChronicledToCharBanner should add feature categories for multiple matching characters', async () => {
+  const chronicled: QueryResponse = {
+      query: {
+        pages: {
+          '12': {
+            pageid: 12,
+            title: 'Character Banner/2020-03-03',
+            categories: [
+              { title: 'Category:Wish Pool Includes Venti' },
+              { title: 'Category:Wish Pool Includes Klee' },
+            ],
+          },
+          '13': {
+            pageid: 13,
+            title: 'NotABanner',
+            categories: [{ title: 'Category:Wish Pool Includes Venti' }],
+          },
+        },
+      },
+  };
+
+  const fiveChars: QueryResponse = {
+      query: {
+        pages: {
+          '1': { pageid: 1, title: 'Venti', categories: [] },
+          '2': { pageid: 2, title: 'Klee', categories: [] },
+        },
+      },
+  };
+
+  const result = banners.coerceChronicledToCharBanner(chronicled, fiveChars);
+
+  // Should include only the page that looks like a banner (has '/') and add feature categories
+  expect(result.query!.pages!['12']).toBeDefined();
+  const addedCats = result.query!.pages!['12'].categories.map((c: any) => c.title);
+    expect(addedCats).toContain('Category:Features Venti');
+    expect(addedCats).toContain('Category:Features Klee');
+    // Non-banner page should be omitted
+  expect(result.query!.pages!['13']).toBeUndefined();
+  });
+
+  test('coerceChronicledToWeapBanner should transform multiple weapons and preserve unique keys', async () => {
+  const chronicled: QueryResponse = {
+      query: {
+        pages: {
+          '20': {
+            pageid: 20,
+            title: 'Weapon Banner/2020-02-02',
+            categories: [
+              { title: "Category:Wish Pool Includes Amos' Bow" },
+              { title: "Category:Wish Pool Includes Wolf's Gravestone" },
+            ],
+          },
+          '21': {
+            pageid: 21,
+            title: 'Weapon Banner/2020-04-04',
+            categories: [{ title: "Category:Wish Pool Includes Wolf's Gravestone" }],
+          },
+        },
+      },
+  };
+
+  const fiveWeaps: QueryResponse = {
+      query: {
+        pages: {
+          '1': { title: "Amos' Bow" },
+          '2': { title: "Wolf's Gravestone" },
+        },
+      },
+  };
+
+  const result = banners.coerceChronicledToWeapBanner(chronicled, fiveWeaps);
+
+  // Weapon pages should be keyed by negative pageid
+  expect(result.query!.pages!['-20']).toBeDefined();
+  expect(result.query!.pages!['-21']).toBeDefined();
+
+  // Titles should be transformed to an Epitome Invocation format and categories should include feature entries
+  expect(result.query!.pages!['-20'].title).toContain('Epitome Invocation/');
+  const cats20 = result.query!.pages!['-20'].categories.map((c: any) => c.title);
+    expect(cats20).toContain("Category:Features Amos' Bow");
+    expect(cats20).toContain("Category:Features Wolf's Gravestone");
+
+  const cats21 = result.query!.pages!['-21'].categories.map((c: any) => c.title);
+    expect(cats21).toContain("Category:Features Wolf's Gravestone");
   });
 });

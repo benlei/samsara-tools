@@ -2,7 +2,7 @@ import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { pullHSRBanners } from '../src/hsr/index';
 import * as hsrFandom from '../src/hsr/fandom-api';
 import * as output from '../src/fandom/output';
-import { HSRBannersParser } from '../src/hsr/banners';
+import * as hsrBanners from '../src/hsr/banners';
 
 // Mock the dependencies
 vi.mock('../src/hsr/fandom-api');
@@ -12,7 +12,7 @@ vi.mock('@actions/core');
 
 const mockHsrFandom = vi.mocked(hsrFandom);
 const mockOutput = vi.mocked(output);
-const mockHSRBannersParser = vi.mocked(HSRBannersParser, true);
+// we'll spy on hsrBanners.HSRBannersParser when needed
 
 describe('HSR module', () => {
   beforeEach(() => {
@@ -27,7 +27,7 @@ describe('HSR module', () => {
         fourStarWeapons: []
       })
     };
-    mockHSRBannersParser.mockImplementation(() => mockParserInstance as any);
+  vi.spyOn(hsrBanners as any, 'HSRBannersParser').mockImplementation(() => mockParserInstance as any);
 
     // Mock HSR fandom API calls
     mockHsrFandom.getEventWishes.mockResolvedValue({ query: { pages: {} } } as any);
@@ -81,9 +81,9 @@ describe('HSR module', () => {
       30000
     );
 
-    expect(mockHSRBannersParser).toHaveBeenCalled();
+    expect((hsrBanners as any).HSRBannersParser).toHaveBeenCalled();
     
-    const parserInstance = mockHSRBannersParser.mock.results[0].value;
+    const parserInstance = (hsrBanners as any).HSRBannersParser.mock.results[0].value;
     expect(parserInstance.parse).toHaveBeenCalledWith(
       expect.any(Object), // event wishes
       expect.any(Object), // 5 star characters
@@ -189,7 +189,7 @@ describe('HSR module', () => {
       30000
     );
 
-    const parserInstance = mockHSRBannersParser.mock.results[0].value;
+  const parserInstance = (hsrBanners as any).HSRBannersParser.mock.results[0].value;
     expect(parserInstance.parse).toHaveBeenCalledWith(
       eventWishesData,
       fiveStarCharsData,
@@ -197,5 +197,75 @@ describe('HSR module', () => {
       expect.any(Object),
       expect.any(Object)
     );
+  });
+
+  // Small focused tests inspired by legacy Python tests
+  test('HSRBannersParser.convertSpecializationPageToTitle should normalize special cases', async () => {
+    // restore original constructor so we can use real methods
+    if ((hsrBanners as any).HSRBannersParser?.mockRestore) {
+      (hsrBanners as any).HSRBannersParser.mockRestore();
+    }
+    const parser = new (hsrBanners as any).HSRBannersParser();
+
+    // Use a page title that directly equals the specialization so the HSR mapper runs
+    const page = { title: 'Topaz & Numby', pageid: 1, categories: [] } as any;
+    const converted = parser.convertSpecializationPageToTitle(page);
+    expect(converted).toBe('Topaz and Numby');
+  });
+  
+  test('HSRBannersParser.isPageWeapon should detect light cone banners', async () => {
+    if ((hsrBanners as any).HSRBannersParser?.mockRestore) {
+      (hsrBanners as any).HSRBannersParser.mockRestore();
+    }
+    const parser = new (hsrBanners as any).HSRBannersParser();
+    const weaponPage = { title: 'Event Warp: Light Cone - Special', pageid: 2, categories: [] } as any;
+    expect(parser.isPageWeapon(weaponPage)).toBe(true);
+    const nonWeaponPage = { title: 'Event Warp: Character - Special', pageid: 3, categories: [] } as any;
+    expect(parser.isPageWeapon(nonWeaponPage)).toBe(false);
+  });
+
+  test('HSRBannersParser.getFeaturedDates should return start/end pairs for featured items', async () => {
+    if ((hsrBanners as any).HSRBannersParser?.mockRestore) {
+      (hsrBanners as any).HSRBannersParser.mockRestore();
+    }
+    const parser = new (hsrBanners as any).HSRBannersParser();
+
+    // eventWishes contains two banner pages with dates; one follows the other
+    const eventWishes = {
+      query: {
+        pages: {
+          '100': { pageid: 100, title: 'Event A/2023-04-01', categories: [{ title: 'Category:Features Seele' }] },
+          '101': { pageid: 101, title: 'Event B/2023-04-15', categories: [{ title: 'Category:Features Seele' }] },
+        },
+      },
+    } as any;
+
+    const dates = await parser.getFeaturedDates(eventWishes as any, 'Seele');
+    // Expect two entries: start for Event A with end = Event B start, and Event B with end = '' (no next)
+    expect(dates.length).toBe(2);
+    expect(dates[0].start).toBe('2023-04-01');
+    expect(dates[0].end).toBe('2023-04-15');
+    expect(dates[1].start).toBe('2023-04-15');
+    expect(dates[1].end).toBe('');
+  });
+
+  test('HSRBannersParser.getFeaturedVersions should return version strings sorted', async () => {
+    if ((hsrBanners as any).HSRBannersParser?.mockRestore) {
+      (hsrBanners as any).HSRBannersParser.mockRestore();
+    }
+    const parser = new (hsrBanners as any).HSRBannersParser();
+
+    // Provide pages where getVersionFromPage will read categories for version
+    const eventWishes = {
+      query: {
+        pages: {
+      '200': { pageid: 200, title: 'Event/2023-04', categories: [{ title: 'Category:Features Seele' }, { title: 'Category:Released in Version 3.4' }] },
+      '201': { pageid: 201, title: 'Event/2023-05', categories: [{ title: 'Category:Features Seele' }, { title: 'Category:Released in Version 3.5' }] },
+        },
+      },
+    } as any;
+    const versions = await parser.getFeaturedVersions(eventWishes as any, 'Seele');
+    // parser returns a minor index; with these inputs we expect the minor to be 1 for both
+    expect(versions).toEqual(['3.4.1', '3.5.1']);
   });
 });
