@@ -1,13 +1,13 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import * as core from '@actions/core';
 import { run } from '../src/index';
-import { pullGenshinBanners } from '../src/genshin';
-import { pullHSRBanners } from '../src/hsr';
+import { pullGenshinBanners } from '../src/genshin/index';
+import { pullHSRBanners } from '../src/hsr/index';
 
 // Mock the dependencies
 vi.mock('@actions/core');
-vi.mock('../src/genshin');
-vi.mock('../src/hsr');
+vi.mock('../src/genshin/index');
+vi.mock('../src/hsr/index');
 
 const mockCore = vi.mocked(core);
 const mockPullGenshinBanners = vi.mocked(pullGenshinBanners);

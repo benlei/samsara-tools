@@ -1,12 +1,12 @@
-import { QueryResponse, Page, BannerDataset, BannerHistory, BannerDates, PageContent } from './types';
-import { getPageContent } from './fandom';
+import { QueryResponse, Page, BannerDataset, BannerHistory, BannerDates, PageContent, RomanNumeralMap, PageContentCache } from './types';
+import { getPageContent } from './api';
 
 export function parseVersionWithLuna(version: string): number[] {
   // Handle Luna versions
   const lunaMatch = version.match(/^Luna ([IVX]+)$/);
   if (lunaMatch) {
     const romanNumeral = lunaMatch[1];
-    const romanToInt: Record<string, number> = {
+    const romanToInt: RomanNumeralMap = {
       'I': 1, 'II': 2, 'III': 3, 'IV': 4, 'V': 5, 
       'VI': 6, 'VII': 7, 'VIII': 8
     };
@@ -69,17 +69,18 @@ function appendUnique<T>(list: T[], value: T): void {
   }
 }
 
-const pageCache: Record<number, string> = {};
+const pageCache: PageContentCache = {};
 
-export class BannersParser {
-  private CategoryVersionPrefix = 'Category:Released in Version ';
-  private CategoryFeaturedPrefix = 'Category:Features ';
-  private WeaponPagePrefix = /Epitome Invocation/;
-  private ChangeHistoryRegex = /\{\{Change History\|(\d+\.\d+)\}\}/;
-  private apiUrl: string;
+export class FandomParser {
+  protected CategoryVersionPrefix = 'Category:Released in Version ';
+  protected CategoryFeaturedPrefix = 'Category:Features ';
+  protected WeaponPagePrefix: RegExp;
+  protected ChangeHistoryRegex = /\{\{Change History\|(\d+\.\d+)\}\}/;
+  protected apiUrl: string;
 
-  constructor(apiUrl: string = 'https://genshin-impact.fandom.com/api.php') {
+  constructor(apiUrl: string = 'https://genshin-impact.fandom.com/api.php', weaponPagePrefix: RegExp = /Epitome Invocation/) {
     this.apiUrl = apiUrl;
+    this.WeaponPagePrefix = weaponPagePrefix;
   }
 
   async cachedFetchPageContent(pageId: number): Promise<string> {
@@ -216,7 +217,8 @@ export class BannersParser {
           await this.getVersionFromPage(page);
           result.query!.pages![page.pageid] = page;
         } catch (error) {
-          console.log(`Skipping page due to version error: ${page.title} - ${error}`);
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          console.log(`Skipping page due to version error: ${page.title} - ${errorMessage}`);
           continue;
         }
       }
@@ -245,7 +247,8 @@ export class BannersParser {
             const fullVersion = `${version}.${minorVersion}`;
             appendUnique(result, fullVersion);
           } catch (error) {
-            console.log(`Error getting version for ${page.title}: ${error}`);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            console.log(`Error getting version for ${page.title}: ${errorMessage}`);
             continue;
           }
         }
@@ -381,7 +384,7 @@ export class BannersParser {
       });
   }
 
-  async transformData(
+  async parse(
     eventWishesQr: QueryResponse,
     fiveStarCharactersQr: QueryResponse,
     fourStarCharactersQr: QueryResponse,
@@ -418,66 +421,5 @@ export function getQrPageTitles(qr: QueryResponse, category: string): string[] {
       result.push(page.title);
     }
   }
-  return result;
-}
-
-export function stripChronicledPrefix(title: string): string {
-  return title.substring('Category:Wish Pool Includes '.length);
-}
-
-export function coerceChronicledToCharBanner(
-  chronicledQr: QueryResponse,
-  charQr: QueryResponse
-): QueryResponse {
-  const fiveStarCharacters = getQrPageTitles(charQr, 'Category:5-Star Characters');
-  const result: QueryResponse = { query: { pages: {} } };
-
-  if (chronicledQr.query?.pages) {
-    for (const page of Object.values(chronicledQr.query.pages)) {
-      if (!isPageBanner(page)) {
-        continue;
-      }
-
-      const newPage = JSON.parse(JSON.stringify(page));
-      const additionalCategories = page.categories
-        .map(c => stripChronicledPrefix(c.title))
-        .filter(title => fiveStarCharacters.includes(title))
-        .map(title => ({ title: `Category:Features ${title}` }));
-
-      newPage.categories.push(...additionalCategories);
-      result.query!.pages![page.pageid] = newPage;
-    }
-  }
-
-  return result;
-}
-
-export function coerceChronicledToWeapBanner(
-  chronicledQr: QueryResponse,
-  weapQr: QueryResponse
-): QueryResponse {
-  const fiveStarWeapons = getQrPageTitles(weapQr, 'Category:5-Star Weapons');
-  const result: QueryResponse = { query: { pages: {} } };
-
-  if (chronicledQr.query?.pages) {
-    for (const page of Object.values(chronicledQr.query.pages)) {
-      if (!isPageBanner(page)) {
-        continue;
-      }
-
-      const newPage = JSON.parse(JSON.stringify(page));
-      newPage.pageid = -page.pageid;
-      newPage.title = `Epitome Invocation/${page.title.split('/')[1]}`;
-      
-      const additionalCategories = page.categories
-        .map(c => stripChronicledPrefix(c.title))
-        .filter(title => fiveStarWeapons.includes(title))
-        .map(title => ({ title: `Category:Features ${title}` }));
-
-      newPage.categories.push(...additionalCategories);
-      result.query!.pages![-page.pageid] = newPage;
-    }
-  }
-
   return result;
 }

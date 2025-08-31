@@ -1,13 +1,13 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { pullHSRBanners } from '../src/hsr';
-import * as hsrFandom from '../src/hsr-fandom';
-import * as output from '../src/output';
-import { HSRBannersParser } from '../src/hsr-banners';
+import { pullHSRBanners } from '../src/hsr/index';
+import * as hsrFandom from '../src/hsr/fandom-api';
+import * as output from '../src/fandom/output';
+import { HSRBannersParser } from '../src/hsr/banners';
 
 // Mock the dependencies
-vi.mock('../src/hsr-fandom');
-vi.mock('../src/output');
-vi.mock('../src/hsr-banners');
+vi.mock('../src/hsr/fandom-api');
+vi.mock('../src/fandom/output');
+vi.mock('../src/hsr/banners');
 vi.mock('@actions/core');
 
 const mockHsrFandom = vi.mocked(hsrFandom);
@@ -20,7 +20,7 @@ describe('HSR module', () => {
     
     // Mock the parser instance
     const mockParserInstance = {
-      transformData: vi.fn().mockResolvedValue({
+      parse: vi.fn().mockResolvedValue({
         fiveStarCharacters: [],
         fourStarCharacters: [],
         fiveStarWeapons: [],
@@ -84,7 +84,7 @@ describe('HSR module', () => {
     expect(mockHSRBannersParser).toHaveBeenCalled();
     
     const parserInstance = mockHSRBannersParser.mock.results[0].value;
-    expect(parserInstance.transformData).toHaveBeenCalledWith(
+    expect(parserInstance.parse).toHaveBeenCalledWith(
       expect.any(Object), // event wishes
       expect.any(Object), // 5 star characters
       expect.any(Object), // 4 star characters
@@ -119,7 +119,9 @@ describe('HSR module', () => {
       expect.any(Object),
       '/test/hsr-images',
       false,
-      true // isHSR = true for HSR
+      true, // isHSR = true for HSR
+      expect.any(Function), // downloadCharacterImage
+      expect.any(Function)  // downloadWeaponImage
     );
   });
 
@@ -136,7 +138,9 @@ describe('HSR module', () => {
       expect.any(Object),
       '/test/hsr-images',
       true, // force should be passed through
-      true
+      true,
+      expect.any(Function), // downloadCharacterImage
+      expect.any(Function)  // downloadWeaponImage
     );
   });
 
@@ -186,7 +190,7 @@ describe('HSR module', () => {
     );
 
     const parserInstance = mockHSRBannersParser.mock.results[0].value;
-    expect(parserInstance.transformData).toHaveBeenCalledWith(
+    expect(parserInstance.parse).toHaveBeenCalledWith(
       eventWishesData,
       fiveStarCharsData,
       expect.any(Object),

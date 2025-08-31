@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
-import { pullGenshinBanners } from './genshin';
-import { pullHSRBanners } from './hsr';
+import { pullGenshinBanners } from './genshin/index';
+import { pullHSRBanners } from './hsr/index';
+import { BannerProcessingResult } from './fandom/types';
 
 async function run(): Promise<void> {
   try {
@@ -11,7 +12,7 @@ async function run(): Promise<void> {
     const skipImages = core.getBooleanInput('skip-images');
     const minDataSize = parseInt(core.getInput('min-data-size') || '40000');
 
-    let result: { dataSize: number; imagesDownloaded: number };
+    let result: BannerProcessingResult;
 
     switch (game.toLowerCase()) {
       case 'gi':

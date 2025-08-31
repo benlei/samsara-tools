@@ -1,4 +1,4 @@
-import { BannerHistory, BannerDataset } from '../src/types';
+import { BannerHistory, BannerDataset } from '../src/fandom/types';
 
 describe('Types', () => {
   test('should create valid BannerHistory', () => {

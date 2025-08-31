@@ -16,6 +16,11 @@ export interface BannerDataset {
   fourStarWeapons: BannerHistory[];
 }
 
+export interface BannerProcessingResult {
+  dataSize: number;
+  imagesDownloaded: number;
+}
+
 export interface Category {
   title: string;
 }
@@ -38,12 +43,45 @@ export interface Continuable {
   gcmcontinue?: string;
 }
 
+export interface ApiError {
+  code: string;
+  info: string;
+  module?: string;
+}
+
+export interface ApiWarning {
+  module: string;
+  warnings: string;
+}
+
+export interface MediaWikiApiParams {
+  action: string;
+  format?: string;
+  generator?: string;
+  gcmtitle?: string;
+  gcmlimit?: string | number;
+  prop?: string;
+  cllimit?: string | number;
+  pageids?: string;
+  rvprop?: string;
+  rvslots?: string;
+  [key: string]: string | number | undefined;
+}
+
 export interface QueryResponse {
   continue?: Continuable;
   query?: Query;
-  errors?: any;
-  warnings?: any;
+  errors?: ApiError[];
+  warnings?: Record<string, ApiWarning>;
   total_pages?: number;
+}
+
+export interface RomanNumeralMap {
+  [key: string]: number;
+}
+
+export interface PageContentCache {
+  [pageId: number]: string;
 }
 
 export interface PageContent {

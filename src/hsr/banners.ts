@@ -1,12 +1,12 @@
-import { BannersParser } from './banners';
-import { Page } from './types';
+import { FandomParser } from '../fandom/parser';
+import { Page } from '../fandom/types';
 
-export class HSRBannersParser extends BannersParser {
+export class HSRBannersParser extends FandomParser {
   constructor() {
-    super('https://honkai-star-rail.fandom.com/api.php');
+    super('https://honkai-star-rail.fandom.com/api.php', /Event Warp/);
   }
 
-  isPageWeapon(page: any): boolean {
+  isPageWeapon(page: Page): boolean {
     // For HSR, weapon banners might have different naming
     return /Event Warp/.test(page.title) && page.title.includes('Light Cone');
   }

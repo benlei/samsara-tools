@@ -1,4 +1,4 @@
-import { parseVersionWithLuna } from '../src/banners';
+import { parseVersionWithLuna } from '../src/fandom/parser';
 
 describe('parseVersionWithLuna', () => {
   test('should parse regular versions correctly', () => {

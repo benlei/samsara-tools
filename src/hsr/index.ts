@@ -1,8 +1,8 @@
 import * as core from '@actions/core';
-import { BannerDataset } from './types';
-import { HSRBannersParser } from './hsr-banners';
-import * as hsrFandom from './hsr-fandom';
-import { writeData, writeImages } from './output';
+import { BannerDataset, BannerProcessingResult } from '../fandom/types';
+import { HSRBannersParser } from './banners';
+import * as hsrFandom from './fandom-api';
+import { writeData, writeImages } from '../fandom/output';
 
 export async function pullHSRBanners(
   outputPath: string,
@@ -10,11 +10,11 @@ export async function pullHSRBanners(
   force: boolean,
   skipImages: boolean,
   minDataSize: number
-): Promise<{ dataSize: number; imagesDownloaded: number }> {
+): Promise<BannerProcessingResult> {
   core.info('Pulling Honkai Star Rail banner data...');
 
   const parser = new HSRBannersParser();
-  const data = await parser.transformData(
+  const data = await parser.parse(
     await hsrFandom.getEventWishes(),
     await hsrFandom.get5StarCharacters(),
     await hsrFandom.get4StarCharacters(),
@@ -23,7 +23,14 @@ export async function pullHSRBanners(
   );
 
   const dataSize = writeData(data, outputPath, minDataSize);
-  const imagesDownloaded = skipImages ? 0 : await writeImages(data, outputImageDir, force, true);
+  const imagesDownloaded = skipImages ? 0 : await writeImages(
+    data, 
+    outputImageDir, 
+    force, 
+    true,
+    hsrFandom.downloadCharacterImage,
+    hsrFandom.downloadWeaponImage
+  );
 
   return { dataSize, imagesDownloaded };
 }

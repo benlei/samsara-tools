@@ -1,18 +1,18 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { pullGenshinBanners } from '../src/genshin';
-import * as fandom from '../src/fandom';
-import * as output from '../src/output';
-import { BannersParser } from '../src/banners';
+import { pullGenshinBanners } from '../src/genshin/index';
+import * as fandom from '../src/genshin/fandom-api';
+import * as output from '../src/fandom/output';
+import { BannersParser } from '../src/genshin/banners';
 
 // Mock the dependencies
-vi.mock('../src/fandom');
-vi.mock('../src/output');
-vi.mock('../src/banners');
+vi.mock('../src/genshin/fandom-api');
+vi.mock('../src/fandom/output');
+vi.mock('../src/genshin/banners');
 vi.mock('@actions/core');
 
 // Mock the banner utility functions
-vi.mock('../src/banners', async () => {
-  const actual = await vi.importActual('../src/banners');
+vi.mock('../src/genshin/banners', async () => {
+  const actual = await vi.importActual('../src/genshin/banners');
   return {
     ...actual,
     BannersParser: vi.fn(),
@@ -31,7 +31,7 @@ describe('Genshin module', () => {
     
     // Mock the parser instance
     const mockParserInstance = {
-      transformData: vi.fn().mockResolvedValue({
+      parse: vi.fn().mockResolvedValue({
         fiveStarCharacters: [],
         fourStarCharacters: [],
         fiveStarWeapons: [],
@@ -109,7 +109,7 @@ describe('Genshin module', () => {
     );
 
     const parserInstance = mockBannersParser.mock.results[0].value;
-    expect(parserInstance.transformData).toHaveBeenCalledWith(
+    expect(parserInstance.parse).toHaveBeenCalledWith(
       expect.objectContaining({
         query: expect.objectContaining({
           pages: expect.objectContaining({
@@ -150,7 +150,9 @@ describe('Genshin module', () => {
       expect.any(Object),
       '/test/images',
       false,
-      false // isHSR = false for Genshin
+      false, // isHSR = false for Genshin
+      expect.any(Function), // downloadCharacterImage
+      expect.any(Function)  // downloadWeaponImage
     );
   });
 
@@ -167,7 +169,9 @@ describe('Genshin module', () => {
       expect.any(Object),
       '/test/images',
       true, // force should be passed through
-      false
+      false,
+      expect.any(Function), // downloadCharacterImage
+      expect.any(Function)  // downloadWeaponImage
     );
   });
 
