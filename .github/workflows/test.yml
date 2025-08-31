@@ -34,7 +34,7 @@ jobs:
         output: './test-output/gi-banners.yml'
         output-image-dir: './test-output/images'
         force: 'false'
-        min-data-size: '1000'
+        min-data-size: '60000'
     
     - name: Test HSR banner pull
       uses: ./
@@ -43,7 +43,7 @@ jobs:
         output: './test-output/hsr-banners.yml'
         output-image-dir: './test-output/images'
         force: 'false'
-        min-data-size: '500'
+        min-data-size: '2000'
 
   build:
     runs-on: ubuntu-latest
