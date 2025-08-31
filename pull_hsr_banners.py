@@ -1,6 +1,7 @@
 import argparse
 import logging
 import pathlib
+import time
 
 import yaml
 
@@ -100,6 +101,7 @@ def write_images(args: argparse.Namespace, data: BannerDataset):
                     hsr_fandom.download_character_image(path, bannerHistory["name"], 80)
                 else:
                     hsr_fandom.download_weapon_image(path, bannerHistory["name"], 80)
+                time.sleep(0.5)  # Sleep 0.5 seconds between downloads
 
 
 def write_data(args: argparse.Namespace, data: BannerDataset):

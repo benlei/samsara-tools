@@ -1,7 +1,7 @@
 import copy
 import re
 from datetime import datetime
-from distutils.version import StrictVersion
+from packaging.version import Version
 from typing import TypedDict, TypeVar
 import logging
 
@@ -11,6 +11,42 @@ from samsara.fandom import QueryResponse, Page
 T = TypeVar("T")
 
 logger = logging.getLogger(__name__)
+
+
+def parse_version_with_luna(version: str) -> tuple:
+    """
+    Parse version string, handling Luna versions as sequential versions after 5.8.
+    
+    Luna I -> 5.9, Luna II -> 5.10, Luna III -> 5.11, etc.
+    Regular versions like "1.2.3" are handled normally.
+    
+    Returns a tuple that can be used for sorting.
+    """
+    # Handle Luna versions
+    luna_match = re.match(r'^Luna ([IVX]+)$', version)
+    if luna_match:
+        roman_numeral = luna_match.group(1)
+        # Convert Roman numerals to numbers
+        roman_to_int = {
+            'I': 1, 'II': 2, 'III': 3, 'IV': 4, 'V': 5, 
+            'VI': 6, 'VII': 7, 'VIII': 8
+        }
+        luna_number = roman_to_int.get(roman_numeral, 1)
+        # Treat Luna I as 5.9, Luna II as 5.10, etc.
+        synthetic_version = f"5.{8 + luna_number}"
+        return tuple(int(x) for x in synthetic_version.split('.')) + (0,)
+    
+    # Handle regular versions
+    try:
+        v = Version(version)
+        # Convert to tuple compatible with old StrictVersion format
+        parts = list(v.release)
+        while len(parts) < 3:
+            parts.append(0)
+        return tuple(parts[:3])
+    except Exception:
+        # Fallback for any malformed versions
+        return (999, 999, 999)
 
 
 class BannerDates(TypedDict):
@@ -209,7 +245,7 @@ class BannersParser:
                     ),
                 )
 
-        result.sort(key=StrictVersion)
+        result.sort(key=parse_version_with_luna)
         return result
 
     def get_next_banner_date(
@@ -297,7 +333,7 @@ class BannersParser:
 
         return sorted(
             [r for r in result if len(r["versions"]) > 0],
-            key=lambda f: f["versions"][0],
+            key=lambda f: parse_version_with_luna(f["versions"][0]),
         )
 
     def transform_data(
