@@ -64,15 +64,15 @@ export async function get4StarWeapons(): Promise<QueryResponse> {
 }
 
 export async function downloadCharacterImage(outputPath: string, characterName: string, size: number = 80): Promise<void> {
-  const filename = generateFilename(characterName);
-  const url = `https://static.wikia.nocookie.net/houkai-star-rail/images/thumb/c/c7/${filename}_Icon.png/${size}px-${filename}_Icon.png`;
+  console.log(`Downloading ${characterName} icon to ${outputPath}`);
+  const url = `https://honkai-star-rail.fandom.com/index.php?title=Special:Redirect/file/Character ${characterName} Icon.png&width=${size}&height=${size}`;
   
   await downloadImage(url, outputPath);
 }
 
 export async function downloadWeaponImage(outputPath: string, weaponName: string, size: number = 80): Promise<void> {
-  const filename = generateFilename(weaponName);
-  const url = `https://static.wikia.nocookie.net/houkai-star-rail/images/thumb/c/c7/${filename}_Icon.png/${size}px-${filename}_Icon.png`;
+  console.log(`Downloading ${weaponName} icon to ${outputPath}`);
+  const url = `https://honkai-star-rail.fandom.com/index.php?title=Special:Redirect/file/Light Cone ${weaponName} Icon.png&width=${size}&height=${size}`;
   
   await downloadImage(url, outputPath);
 }
@@ -97,11 +97,4 @@ async function downloadImage(url: string, outputPath: string): Promise<void> {
   } catch (error) {
     console.warn(`Failed to download HSR image from ${url}: ${error}`);
   }
-}
-
-function generateFilename(name: string): string {
-  return name
-    .replace(/[^a-zA-Z0-9\s]/g, '')
-    .replace(/\s+/g, '_')
-    .toLowerCase();
 }

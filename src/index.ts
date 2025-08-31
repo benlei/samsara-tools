@@ -10,11 +10,9 @@ import * as hsrFandom from './hsr-fandom';
 
 function generateFilename(name: string): string {
   // Use the same logic as Python generate.filename
-  return name
-    .replace(/[^a-zA-Z0-9\s]/g, '') // Remove special characters
-    .replace(/\s+/g, '_') // Replace spaces with underscores
-    .replace(/^_+|_+$/g, '') // Remove leading/trailing underscores
-    .toLowerCase();
+  let result = name.replace(/\s/g, '-'); // Replace spaces with hyphens
+  result = result.replace(/[^a-zA-Z0-9\-]/g, ''); // Remove special characters except hyphens
+  return result.replace(/--+/g, '-'); // Replace multiple consecutive hyphens with single hyphen
 }
 
 async function downloadImage(
