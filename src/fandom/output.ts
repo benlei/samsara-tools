@@ -1,7 +1,12 @@
 import { writeFileSync, existsSync } from 'fs';
 import { resolve, join } from 'path';
 import { dump } from 'js-yaml';
-import { BannerDataset, BannerHistory, DownloadCharacterImageFunction, DownloadWeaponImageFunction } from './types';
+import {
+  BannerDataset,
+  BannerHistory,
+  DownloadCharacterImageFunction,
+  DownloadWeaponImageFunction,
+} from './types';
 import { warning } from '@actions/core';
 
 export function generateFilename(name: string): string {
