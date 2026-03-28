@@ -9,6 +9,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    depends-on: build
     strategy:
       fail-fast: false
       matrix:
