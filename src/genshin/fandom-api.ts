@@ -98,42 +98,78 @@ export async function getChronicledWishes(): Promise<QueryResponse> {
   );
 }
 
-export async function downloadCharacterImage(
+async function downloadFandomThumbnail(
   outputPath: string,
-  characterName: string,
-  size: number = 80
+  apiBase: string,
+  fileName: string,
+  size: number
 ): Promise<void> {
-  info(`Downloading ${characterName} icon to ${outputPath}`);
+  const params = {
+    action: 'query',
+    titles: `File:${fileName}`,
+    prop: 'imageinfo',
+    iiprop: 'url',
+    iiurlwidth: size,
+    format: 'json',
+  };
 
-  // Use Fandom's redirect system like the Python version
-  const url = `https://genshin-impact.fandom.com/index.php?title=Special:Redirect/file/${characterName} Icon.png&width=${size}&height=${size}`;
-
-  const response = await axios.get(url, {
-    responseType: 'stream',
-    timeout: 10000, // 10 second timeout
+  const response = await axios.get(apiBase, {
+    params,
+    timeout: 10000,
     headers: {
       'User-Agent': 'Samsara-Tools/1.0.0',
     },
   });
 
   if (response.status !== 200) {
-    warning(`Received status ${response.status} trying to download image from ${url}`);
+    warning(`Received status ${response.status} from API ${apiBase}`);
     throw new Error(`HTTP ${response.status}`);
   }
 
-  // Ensure directory exists
+  const pages = response.data?.query?.pages;
+  const pageId = pages ? Object.keys(pages)[0] : undefined;
+  const thumbUrl = pageId ? pages[pageId]?.imageinfo?.[0]?.thumburl : undefined;
+
+  if (!thumbUrl) {
+    throw new Error(`Could not generate thumbnail URL for ${fileName}`);
+  }
+
+  info(`Downloading resized icon: ${thumbUrl}`);
+
+  const downloadResponse = await axios.get(thumbUrl, {
+    responseType: 'stream',
+    timeout: 10000,
+    headers: {
+      'User-Agent': 'Samsara-Tools/1.0.0',
+    },
+  });
+
+  if (downloadResponse.status !== 200) {
+    warning(`Received status ${downloadResponse.status} trying to download image from ${thumbUrl}`);
+    throw new Error(`HTTP ${downloadResponse.status}`);
+  }
+
   const dir = dirname(outputPath);
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
   }
 
   const writer = createWriteStream(outputPath);
-  response.data.pipe(writer);
+  downloadResponse.data.pipe(writer);
 
   return new Promise<void>((resolve, reject) => {
     writer.on('finish', resolve);
     writer.on('error', reject);
   });
+}
+
+export async function downloadCharacterImage(
+  outputPath: string,
+  characterName: string,
+  size: number = 80
+): Promise<void> {
+  info(`Downloading ${characterName} icon to ${outputPath}`);
+  return downloadFandomThumbnail(outputPath, GI_API_URL, `${characterName} Icon.png`, size);
 }
 
 export async function downloadWeaponImage(
@@ -142,34 +178,5 @@ export async function downloadWeaponImage(
   size: number = 80
 ): Promise<void> {
   info(`Downloading ${weaponName} icon to ${outputPath}`);
-
-  // Use Fandom's redirect system like the Python version
-  const url = `https://genshin-impact.fandom.com/index.php?title=Special:Redirect/file/Weapon ${weaponName}.png&width=${size}&height=${size}`;
-
-  const response = await axios.get(url, {
-    responseType: 'stream',
-    timeout: 10000, // 10 second timeout
-    headers: {
-      'User-Agent': 'Samsara-Tools/1.0.0',
-    },
-  });
-
-  if (response.status !== 200) {
-    warning(`Received status ${response.status} trying to download image from ${url}`);
-    throw new Error(`HTTP ${response.status}`);
-  }
-
-  // Ensure directory exists
-  const dir = dirname(outputPath);
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
-  }
-
-  const writer = createWriteStream(outputPath);
-  response.data.pipe(writer);
-
-  return new Promise<void>((resolve, reject) => {
-    writer.on('finish', resolve);
-    writer.on('error', reject);
-  });
+  return downloadFandomThumbnail(outputPath, GI_API_URL, `Weapon ${weaponName}.png`, size);
 }

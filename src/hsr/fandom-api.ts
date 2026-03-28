@@ -79,35 +79,78 @@ export async function get4StarLightCones(): Promise<QueryResponse> {
   );
 }
 
+async function downloadFandomThumbnail(
+  outputPath: string,
+  apiBase: string,
+  fileName: string,
+  size: number
+): Promise<void> {
+  const params = {
+    action: 'query',
+    titles: `File:${fileName}`,
+    prop: 'imageinfo',
+    iiprop: 'url',
+    iiurlwidth: size,
+    format: 'json',
+  };
+
+  const response = await axios.get(apiBase, {
+    params,
+    timeout: 10000,
+    headers: {
+      'User-Agent': 'Samsara-Tools/1.0.0',
+    },
+  });
+
+  if (response.status !== 200) {
+    warning(`Received status ${response.status} from API ${apiBase}`);
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  const pages = response.data?.query?.pages;
+  const pageId = pages ? Object.keys(pages)[0] : undefined;
+  const thumbUrl = pageId ? pages[pageId]?.imageinfo?.[0]?.thumburl : undefined;
+
+  if (!thumbUrl) {
+    throw new Error(`Could not generate thumbnail URL for ${fileName}`);
+  }
+
+  info(`Downloading resized icon: ${thumbUrl}`);
+
+  const downloadResponse = await axios.get(thumbUrl, {
+    responseType: 'stream',
+    timeout: 10000,
+    headers: {
+      'User-Agent': 'Samsara-Tools/1.0.0',
+    },
+  });
+
+  if (downloadResponse.status !== 200) {
+    warning(`Received status ${downloadResponse.status} trying to download image from ${thumbUrl}`);
+    throw new Error(`HTTP ${downloadResponse.status}`);
+  }
+
+  const dir = dirname(outputPath);
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
+  }
+
+  const writer = createWriteStream(outputPath);
+  downloadResponse.data.pipe(writer);
+
+  return new Promise<void>((resolve, reject) => {
+    writer.on('finish', resolve);
+    writer.on('error', reject);
+  });
+}
+
 export async function downloadCharacterImage(
   outputPath: string,
   characterName: string,
   size: number = 80
 ): Promise<void> {
   info(`Downloading ${characterName} icon to ${outputPath}`);
-  const url = `https://honkai-star-rail.fandom.com/index.php?title=Special:Redirect/file/Character ${characterName} Icon.png&width=${size}&height=${size}`;
-
-  try {
-    const response = await axios.get(url, { responseType: 'stream' });
-
-    // Ensure directory exists
-    const dir = dirname(outputPath);
-    if (!existsSync(dir)) {
-      mkdirSync(dir, { recursive: true });
-    }
-
-    const writer = createWriteStream(outputPath);
-    response.data.pipe(writer);
-
-    return new Promise<void>((resolve, reject) => {
-      writer.on('finish', resolve);
-      writer.on('error', reject);
-    });
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    warning(`Failed to download HSR character image from ${url}: ${errorMessage}`);
-    throw error;
-  }
+  return downloadFandomThumbnail(outputPath, HSR_API_URL, `Character ${characterName} Icon.png`, size);
 }
 
 export async function downloadWeaponImage(
@@ -116,27 +159,5 @@ export async function downloadWeaponImage(
   size: number = 80
 ): Promise<void> {
   info(`Downloading ${weaponName} icon to ${outputPath}`);
-  const url = `https://honkai-star-rail.fandom.com/index.php?title=Special:Redirect/file/Light Cone ${weaponName} Icon.png&width=${size}&height=${size}`;
-
-  try {
-    const response = await axios.get(url, { responseType: 'stream' });
-
-    // Ensure directory exists
-    const dir = dirname(outputPath);
-    if (!existsSync(dir)) {
-      mkdirSync(dir, { recursive: true });
-    }
-
-    const writer = createWriteStream(outputPath);
-    response.data.pipe(writer);
-
-    return new Promise<void>((resolve, reject) => {
-      writer.on('finish', resolve);
-      writer.on('error', reject);
-    });
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    warning(`Failed to download HSR weapon image from ${url}: ${errorMessage}`);
-    throw error;
-  }
+  return downloadFandomThumbnail(outputPath, HSR_API_URL, `Light Cone ${weaponName} Icon.png`, size);
 }
