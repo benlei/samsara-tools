@@ -150,7 +150,12 @@ export async function downloadCharacterImage(
   size: number = 80
 ): Promise<void> {
   info(`Downloading ${characterName} icon to ${outputPath}`);
-  return downloadFandomThumbnail(outputPath, HSR_API_URL, `Character ${characterName} Icon.png`, size);
+  return downloadFandomThumbnail(
+    outputPath,
+    HSR_API_URL,
+    `Character ${characterName} Icon.png`,
+    size
+  );
 }
 
 export async function downloadWeaponImage(
@@ -159,5 +164,10 @@ export async function downloadWeaponImage(
   size: number = 80
 ): Promise<void> {
   info(`Downloading ${weaponName} icon to ${outputPath}`);
-  return downloadFandomThumbnail(outputPath, HSR_API_URL, `Light Cone ${weaponName} Icon.png`, size);
+  return downloadFandomThumbnail(
+    outputPath,
+    HSR_API_URL,
+    `Light Cone ${weaponName} Icon.png`,
+    size
+  );
 }

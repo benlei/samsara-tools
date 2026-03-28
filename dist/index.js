@@ -622,59 +622,62 @@ async function getChronicledWishes() {
         format: 'json',
     }, GI_API_URL);
 }
-async function downloadCharacterImage(outputPath, characterName, size = 80) {
-    (0, core_1.info)(`Downloading ${characterName} icon to ${outputPath}`);
-    // Use Fandom's redirect system like the Python version
-    const url = `https://genshin-impact.fandom.com/index.php?title=Special:Redirect/file/${characterName} Icon.png&width=${size}&height=${size}`;
-    const response = await axios_1.default.get(url, {
-        responseType: 'stream',
-        timeout: 10000, // 10 second timeout
+async function downloadFandomThumbnail(outputPath, apiBase, fileName, size) {
+    const params = {
+        action: 'query',
+        titles: `File:${fileName}`,
+        prop: 'imageinfo',
+        iiprop: 'url',
+        iiurlwidth: size,
+        format: 'json',
+    };
+    const response = await axios_1.default.get(apiBase, {
+        params,
+        timeout: 10000,
         headers: {
             'User-Agent': 'Samsara-Tools/1.0.0',
         },
     });
     if (response.status !== 200) {
-        (0, core_1.warning)(`Received status ${response.status} trying to download image from ${url}`);
+        (0, core_1.warning)(`Received status ${response.status} from API ${apiBase}`);
         throw new Error(`HTTP ${response.status}`);
     }
-    // Ensure directory exists
+    const pages = response.data?.query?.pages;
+    const pageId = pages ? Object.keys(pages)[0] : undefined;
+    const thumbUrl = pageId ? pages[pageId]?.imageinfo?.[0]?.thumburl : undefined;
+    if (!thumbUrl) {
+        throw new Error(`Could not generate thumbnail URL for ${fileName}`);
+    }
+    (0, core_1.info)(`Downloading resized icon: ${thumbUrl}`);
+    const downloadResponse = await axios_1.default.get(thumbUrl, {
+        responseType: 'stream',
+        timeout: 10000,
+        headers: {
+            'User-Agent': 'Samsara-Tools/1.0.0',
+        },
+    });
+    if (downloadResponse.status !== 200) {
+        (0, core_1.warning)(`Received status ${downloadResponse.status} trying to download image from ${thumbUrl}`);
+        throw new Error(`HTTP ${downloadResponse.status}`);
+    }
     const dir = (0, path_1.dirname)(outputPath);
     if (!(0, fs_1.existsSync)(dir)) {
         (0, fs_1.mkdirSync)(dir, { recursive: true });
     }
     const writer = (0, fs_1.createWriteStream)(outputPath);
-    response.data.pipe(writer);
+    downloadResponse.data.pipe(writer);
     return new Promise((resolve, reject) => {
         writer.on('finish', resolve);
         writer.on('error', reject);
     });
 }
+async function downloadCharacterImage(outputPath, characterName, size = 80) {
+    (0, core_1.info)(`Downloading ${characterName} icon to ${outputPath}`);
+    return downloadFandomThumbnail(outputPath, GI_API_URL, `${characterName} Icon.png`, size);
+}
 async function downloadWeaponImage(outputPath, weaponName, size = 80) {
     (0, core_1.info)(`Downloading ${weaponName} icon to ${outputPath}`);
-    // Use Fandom's redirect system like the Python version
-    const url = `https://genshin-impact.fandom.com/index.php?title=Special:Redirect/file/Weapon ${weaponName}.png&width=${size}&height=${size}`;
-    const response = await axios_1.default.get(url, {
-        responseType: 'stream',
-        timeout: 10000, // 10 second timeout
-        headers: {
-            'User-Agent': 'Samsara-Tools/1.0.0',
-        },
-    });
-    if (response.status !== 200) {
-        (0, core_1.warning)(`Received status ${response.status} trying to download image from ${url}`);
-        throw new Error(`HTTP ${response.status}`);
-    }
-    // Ensure directory exists
-    const dir = (0, path_1.dirname)(outputPath);
-    if (!(0, fs_1.existsSync)(dir)) {
-        (0, fs_1.mkdirSync)(dir, { recursive: true });
-    }
-    const writer = (0, fs_1.createWriteStream)(outputPath);
-    response.data.pipe(writer);
-    return new Promise((resolve, reject) => {
-        writer.on('finish', resolve);
-        writer.on('error', reject);
-    });
+    return downloadFandomThumbnail(outputPath, GI_API_URL, `Weapon ${weaponName}.png`, size);
 }
 
 
@@ -826,51 +829,62 @@ async function get4StarLightCones() {
         format: 'json',
     }, HSR_API_URL);
 }
+async function downloadFandomThumbnail(outputPath, apiBase, fileName, size) {
+    const params = {
+        action: 'query',
+        titles: `File:${fileName}`,
+        prop: 'imageinfo',
+        iiprop: 'url',
+        iiurlwidth: size,
+        format: 'json',
+    };
+    const response = await axios_1.default.get(apiBase, {
+        params,
+        timeout: 10000,
+        headers: {
+            'User-Agent': 'Samsara-Tools/1.0.0',
+        },
+    });
+    if (response.status !== 200) {
+        (0, core_1.warning)(`Received status ${response.status} from API ${apiBase}`);
+        throw new Error(`HTTP ${response.status}`);
+    }
+    const pages = response.data?.query?.pages;
+    const pageId = pages ? Object.keys(pages)[0] : undefined;
+    const thumbUrl = pageId ? pages[pageId]?.imageinfo?.[0]?.thumburl : undefined;
+    if (!thumbUrl) {
+        throw new Error(`Could not generate thumbnail URL for ${fileName}`);
+    }
+    (0, core_1.info)(`Downloading resized icon: ${thumbUrl}`);
+    const downloadResponse = await axios_1.default.get(thumbUrl, {
+        responseType: 'stream',
+        timeout: 10000,
+        headers: {
+            'User-Agent': 'Samsara-Tools/1.0.0',
+        },
+    });
+    if (downloadResponse.status !== 200) {
+        (0, core_1.warning)(`Received status ${downloadResponse.status} trying to download image from ${thumbUrl}`);
+        throw new Error(`HTTP ${downloadResponse.status}`);
+    }
+    const dir = (0, path_1.dirname)(outputPath);
+    if (!(0, fs_1.existsSync)(dir)) {
+        (0, fs_1.mkdirSync)(dir, { recursive: true });
+    }
+    const writer = (0, fs_1.createWriteStream)(outputPath);
+    downloadResponse.data.pipe(writer);
+    return new Promise((resolve, reject) => {
+        writer.on('finish', resolve);
+        writer.on('error', reject);
+    });
+}
 async function downloadCharacterImage(outputPath, characterName, size = 80) {
     (0, core_1.info)(`Downloading ${characterName} icon to ${outputPath}`);
-    const url = `https://honkai-star-rail.fandom.com/index.php?title=Special:Redirect/file/Character ${characterName} Icon.png&width=${size}&height=${size}`;
-    try {
-        const response = await axios_1.default.get(url, { responseType: 'stream' });
-        // Ensure directory exists
-        const dir = (0, path_1.dirname)(outputPath);
-        if (!(0, fs_1.existsSync)(dir)) {
-            (0, fs_1.mkdirSync)(dir, { recursive: true });
-        }
-        const writer = (0, fs_1.createWriteStream)(outputPath);
-        response.data.pipe(writer);
-        return new Promise((resolve, reject) => {
-            writer.on('finish', resolve);
-            writer.on('error', reject);
-        });
-    }
-    catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        (0, core_1.warning)(`Failed to download HSR character image from ${url}: ${errorMessage}`);
-        throw error;
-    }
+    return downloadFandomThumbnail(outputPath, HSR_API_URL, `Character ${characterName} Icon.png`, size);
 }
 async function downloadWeaponImage(outputPath, weaponName, size = 80) {
     (0, core_1.info)(`Downloading ${weaponName} icon to ${outputPath}`);
-    const url = `https://honkai-star-rail.fandom.com/index.php?title=Special:Redirect/file/Light Cone ${weaponName} Icon.png&width=${size}&height=${size}`;
-    try {
-        const response = await axios_1.default.get(url, { responseType: 'stream' });
-        // Ensure directory exists
-        const dir = (0, path_1.dirname)(outputPath);
-        if (!(0, fs_1.existsSync)(dir)) {
-            (0, fs_1.mkdirSync)(dir, { recursive: true });
-        }
-        const writer = (0, fs_1.createWriteStream)(outputPath);
-        response.data.pipe(writer);
-        return new Promise((resolve, reject) => {
-            writer.on('finish', resolve);
-            writer.on('error', reject);
-        });
-    }
-    catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        (0, core_1.warning)(`Failed to download HSR weapon image from ${url}: ${errorMessage}`);
-        throw error;
-    }
+    return downloadFandomThumbnail(outputPath, HSR_API_URL, `Light Cone ${weaponName} Icon.png`, size);
 }
 
 
