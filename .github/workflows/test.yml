@@ -73,5 +73,6 @@ jobs:
         if [ -n "$(git status --porcelain)" ]; then
           echo "Build is not up to date. Please run 'npm run build' and commit the changes."
           git status
+          git diff
           exit 1
         fi
